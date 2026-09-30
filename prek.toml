@@ -1,0 +1,23 @@
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "lint"
+name = "oxlint"
+entry = "bun run lint"
+language = "system"
+pass_filenames = false
+
+[[repos.hooks]]
+id = "format"
+name = "oxfmt"
+entry = "bun run format:check"
+language = "system"
+pass_filenames = false
+
+[[repos.hooks]]
+id = "typecheck"
+name = "typecheck"
+entry = "bun run typecheck"
+language = "system"
+pass_filenames = false

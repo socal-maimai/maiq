@@ -1,0 +1,11 @@
+import { defineConfig } from 'oxfmt'
+
+export default defineConfig({
+  printWidth: 100,
+  tabWidth: 2,
+  semi: false,
+  singleQuote: true,
+  trailingComma: 'es5',
+  arrowParens: 'avoid',
+  ignorePatterns: ['packages/db/migrations/**', 'bun.lock'],
+})
