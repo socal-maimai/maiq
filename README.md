@@ -6,6 +6,7 @@
 [![Bun][Bun Badge]][Bun]
 [![Svelte][Svelte Badge]][Svelte]
 [![Discord][Discord Badge]][Carbon]
+[![License][License Badge]](LICENSE)
 
 </div>
 
@@ -88,3 +89,4 @@ maiq ships as one Docker image that serves the web app, the API, and the Discord
 [Svelte Badge]: https://img.shields.io/badge/svelte-5-e23d80?logo=svelte&logoColor=fff&style=flat-square
 [Carbon]: https://carbon.buape.com/
 [Discord Badge]: https://img.shields.io/badge/discord-carbon-ff5b9b?logo=discord&logoColor=fff&style=flat-square
+[License Badge]: https://img.shields.io/badge/license-MIT-ffa3c4?style=flat-square
