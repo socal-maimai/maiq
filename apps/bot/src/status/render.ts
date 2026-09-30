@@ -11,26 +11,44 @@ import type { BotDeps } from '@maiq/bot/deps'
 
 const unix = (date: Date): number => Math.floor(date.getTime() / 1000)
 
-function lineText(line: Line, state: LineState | undefined, down: number): string {
-  const heading = `### ${lineName(line)}`
+type LineSummary = { count: string; wait: string | null; age: string }
+
+function summarize(line: Line, state: LineState | undefined, down: number): LineSummary {
   if (!state?.count || !state.reportedAt) {
-    const last = state?.reportedAt
-      ? `Last report <t:${unix(state.reportedAt)}:R>`
-      : 'No reports yet'
-    return [heading, '**?**', last].join('\n')
+    const age = state?.reportedAt ? `Last report <t:${unix(state.reportedAt)}:R>` : 'No reports yet'
+    return { count: '?', wait: null, age }
   }
-  const { text } = rotation(
-    state.count.players,
-    state.count.queue,
-    playableSeats(line, down),
-    false
-  )
-  return [
-    heading,
-    `**${formatCount(state.count)}**`,
-    text,
-    `Updated <t:${unix(state.reportedAt)}:R>`,
-  ].join('\n')
+  const seats = playableSeats(line, down)
+  const { text } = rotation(state.count.players, state.count.queue, seats, false)
+  return {
+    count: formatCount(state.count),
+    wait: text,
+    age: `Updated <t:${unix(state.reportedAt)}:R>`,
+  }
+}
+
+function lineText(line: Line, state: LineState | undefined, down: number): string {
+  const { count, wait, age } = summarize(line, state, down)
+  return [`### ${lineName(line)}`, `**${count}**`, wait, age].filter(Boolean).join('\n')
+}
+
+export function queueText(
+  arcade: Arcade,
+  states: readonly LineState[],
+  buttonStates: readonly ButtonState[]
+): string {
+  const byLine = new Map(states.map(state => [state.lineId, state]))
+  return arcade.lines
+    .map(line => {
+      const { count, wait, age } = summarize(
+        line,
+        byLine.get(line.id),
+        downSides(buttonStates, line.id)
+      )
+      const detail = wait ? `${wait}, ${age.charAt(0).toLowerCase()}${age.slice(1)}` : age
+      return `**${lineName(line)}** ${count}\n-# ${detail}`
+    })
+    .join('\n')
 }
 
 export function statusComponents(

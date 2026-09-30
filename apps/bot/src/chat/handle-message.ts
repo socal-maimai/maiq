@@ -11,6 +11,7 @@ import { PickLineButton } from '@maiq/bot/components/pick-line-button'
 import { addCheckMark, logChatFailure } from '@maiq/bot/chat/rest'
 import type { BotDeps } from '@maiq/bot/deps'
 import { channelArcade, describeWrite, discordReport } from '@maiq/bot/replies'
+import { queueText } from '@maiq/bot/status/render'
 
 export type ChatMessage = {
   id: string
@@ -53,6 +54,19 @@ async function askForLine(
   })
 }
 
+const QUEUE_QUESTION = /^(q|queue)\?+$/i
+
+async function answerQueue(message: ChatMessage, deps: BotDeps, rest: RequestClient) {
+  const arcade = await channelArcade(deps.statusMessages, message.channelId)
+  if (!arcade) return
+  const lineIds = arcade.lines.map(line => line.id)
+  const [states, buttonStates] = await Promise.all([
+    deps.queue.lineStates(lineIds),
+    deps.buttons.buttonStates(lineIds),
+  ])
+  await replyTo(rest, message, { content: queueText(arcade, states, buttonStates) })
+}
+
 async function record(message: ChatMessage, deps: BotDeps, rest: RequestClient): Promise<void> {
   const count = findCount(message.content)
   if (!count) return
@@ -78,7 +92,8 @@ export async function handleChatMessage(
 ): Promise<void> {
   if (message.authorIsBot || message.webhookId || !message.guildId) return
   try {
-    await record(message, deps, rest)
+    if (QUEUE_QUESTION.test(message.content.trim())) await answerQueue(message, deps, rest)
+    else await record(message, deps, rest)
   } catch (error) {
     logChatFailure(deps, error, { channelId: message.channelId, messageId: message.id })
   }

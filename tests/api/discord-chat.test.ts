@@ -197,3 +197,47 @@ describe('line picker from chat', () => {
     expect(await countOf(t, 'lakewood:main')).toBeNull()
   })
 })
+
+describe('queue questions', () => {
+  test('answers q? with the current queue and records nothing', async () => {
+    const t = await setup(['temecula'])
+    await t.receiveChat(fakeGatewayMessage({ content: '2p1q' }))
+    t.discord.calls.length = 0
+    const question = fakeGatewayMessage({ content: 'q?' })
+    await t.receiveChat(question)
+    const [reply] = replies(t)
+    expect(reply?.content).toMatch(/^\*\*Round1 Temecula\*\* 2p1q\n-# .+, updated <t:\d+:R>$/)
+    expect(reply?.message_reference.message_id).toBe(question.id)
+    expect(reply?.allowed_mentions.replied_user).toBe(false)
+    expect(t.discord.calls.some(c => c.method === 'PUT')).toBe(false)
+  })
+
+  test('accepts queue? in any case and with extra question marks', async () => {
+    const t = await setup(['temecula'])
+    await t.receiveChat(fakeGatewayMessage({ content: ' QUEUE?? ' }))
+    expect(replies(t)[0]?.content).toBe('**Round1 Temecula** ?\n-# No reports yet')
+  })
+
+  test('lists every line at a multi-line arcade', async () => {
+    const t = await setup(['lakewood:main', 'lakewood:cuck'])
+    await t.receiveChat(fakeGatewayMessage({ content: 'main 3p2q' }))
+    t.discord.calls.length = 0
+    await t.receiveChat(fakeGatewayMessage({ content: 'q?' }))
+    const content = replies(t)[0]?.content ?? ''
+    expect(content).toMatch(/^\*\*Round1 Lakewood \(Main cabs\)\*\* 3p2q\n-# .+\n/)
+    expect(content).toMatch(/\*\*Round1 Lakewood \(Cuck cab\)\*\* \?\n-# No reports yet$/)
+  })
+
+  test('ignores questions that are not exactly q? or queue?', async () => {
+    const t = await setup(['temecula'])
+    const messages = ['q', 'queue', 'what is the q?', 'q?!', 'qq?']
+    await Promise.all(messages.map(content => t.receiveChat(fakeGatewayMessage({ content }))))
+    expect(t.discord.calls).toEqual([])
+  })
+
+  test('ignores q? in channels without /setup', async () => {
+    const t = await setup()
+    await t.receiveChat(fakeGatewayMessage({ content: 'q?' }))
+    expect(t.discord.calls).toEqual([])
+  })
+})
