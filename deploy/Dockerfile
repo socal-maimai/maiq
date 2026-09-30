@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.14-alpine AS deps
+FROM oven/bun:1.4.2-alpine AS deps
 WORKDIR /app
 COPY package.json bun.lock bunfig.toml ./
 COPY apps/api/package.json apps/api/package.json
@@ -20,7 +20,7 @@ FROM deps AS runtime-deps
 RUN rm -rf node_modules \
     && bun install --frozen-lockfile --production --linker=hoisted --filter '@maiq/api'
 
-FROM oven/bun:1.3.14-alpine
+FROM oven/bun:1.4.2-alpine
 RUN apk add --no-cache nginx supervisor
 WORKDIR /app
 ENV NODE_ENV=production \
