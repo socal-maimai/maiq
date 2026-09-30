@@ -1,0 +1,159 @@
+:root {
+  color-scheme: light dark;
+
+  --font-sans: 'M PLUS Rounded 1c', ui-rounded, 'Hiragino Maru Gothic ProN', system-ui, sans-serif;
+  --weight-regular: 500;
+  --weight-heavy: 800;
+
+  --space-m: 1rem;
+  --radius-pill: 999px;
+
+  --layer-bar: 10;
+  --layer-dialog: 50;
+  --layer-popover: 60;
+  --layer-toast: 70;
+
+  --bg: #eaf0f6;
+  --card: #ffffff;
+  --ink: #1b2440;
+  --muted: #5f6983;
+  --pink: #e23d80;
+  --on-pink: #ffffff;
+  --pink-soft: color-mix(in srgb, var(--pink) 13%, transparent);
+  --line: #d5dce8;
+  --err: #b3261e;
+  --go: #1e7a45;
+  --verified: #1d9bf0;
+  --verified-ink: #fff;
+  --soon: #8a6400;
+  --long: #c0352d;
+  --warning-ink: #9a5b00;
+  --warning-bg: #fff4de;
+  --scrim: rgb(15 20 40 / 0.35);
+  --scrim-soft: rgb(15 20 40 / 0.28);
+
+  --status-good: #34b36b;
+  --status-unreliable: #f3b61f;
+  --status-broken: #e5484d;
+  --status-pending: #a3acbd;
+  --face-ink: #ffffff;
+  --face-ink-unreliable: #5a4200;
+  --cab-bezel: #e6ebf2;
+  --cab-rim: #ffffff;
+  --cab-screen: #dcecff;
+  --cab-idle: #c9d1de;
+  --issue-unreliable-ink: #8a6500;
+  --issue-unreliable-bg: #fdf0c4;
+  --issue-pending-ink: #5d6678;
+  --issue-pending-bg: #e9edf3;
+  --issue-broken-ink: #b3261e;
+  --issue-broken-bg: #fde1e0;
+  --shadow-raised: 0 10px 30px rgb(0 0 0 / 0.14);
+  --shadow-overlay: 0 18px 50px rgb(0 0 0 / 0.25);
+  --shadow-sheet: 0 -8px 32px rgb(0 0 0 / 0.18);
+  --focus-ring: 3px solid var(--pink);
+  --touch-min: 2.75rem;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121829;
+    --card: #1c2440;
+    --ink: #eef2fb;
+    --muted: #97a1bb;
+    --pink: #ff5b9b;
+    --line: #34405f;
+    --err: #ff8a80;
+    --go: #4cc27f;
+    --soon: #e0b04a;
+    --long: #ff7b72;
+    --warning-ink: #ffcf7a;
+    --warning-bg: #3a2c12;
+    --cab-bezel: #2a3350;
+    --cab-rim: #1c2440;
+    --cab-screen: #26345a;
+    --cab-idle: #46506e;
+    --issue-unreliable-ink: #ffd66b;
+    --issue-unreliable-bg: #3a3012;
+    --issue-pending-ink: #c3cad8;
+    --issue-pending-bg: #2a3350;
+    --issue-broken-ink: #ff8a80;
+    --issue-broken-bg: #43201f;
+  }
+}
+
+:root {
+  padding-block: env(safe-area-inset-top, 0px) env(safe-area-inset-bottom, 0px);
+  scroll-padding-block-start: env(safe-area-inset-top, 0px);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-weight: var(--weight-regular);
+  color: var(--ink);
+  background: var(--bg);
+}
+
+strong,
+h1,
+h2,
+h3,
+legend {
+  font-weight: var(--weight-heavy);
+}
+
+[data-turnstile] {
+  position: fixed;
+  inset-block-end: var(--space-m);
+  inset-inline: 0;
+  z-index: var(--layer-toast);
+  display: flex;
+  justify-content: center;
+}
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+[data-status='good'] {
+  --tone: var(--status-good);
+}
+
+[data-status='unreliable'] {
+  --tone: var(--status-unreliable);
+}
+
+[data-status='broken'] {
+  --tone: var(--status-broken);
+}
+
+[data-status='pending'] {
+  --tone: var(--status-pending);
+}
+
+[data-variant='primary'] {
+  font-weight: var(--weight-heavy);
+  color: var(--on-pink);
+  background: var(--pink);
+  border: 0;
+  border-radius: var(--radius-pill);
+}
+
+[data-variant='primary']:disabled:not([aria-busy='true']) {
+  opacity: 0.45;
+  cursor: default;
+}
+
+[data-touch] {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    inset-block: min(0px, calc((100% - var(--touch-min)) / 2));
+    inset-inline: min(0px, calc((100% - var(--touch-min)) / 2));
+    content: '';
+  }
+}

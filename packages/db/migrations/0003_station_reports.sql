@@ -1,0 +1,2 @@
+ALTER TABLE "button_reports" DROP CONSTRAINT "button_reports_button_range";--> statement-breakpoint
+ALTER TABLE "button_reports" ADD CONSTRAINT "button_reports_button_range" CHECK ("button_reports"."button" between 0 and 8);

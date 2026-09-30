@@ -1,0 +1,31 @@
+{
+  "name": "@maiq/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bunx --bun vite dev",
+    "build": "bunx --bun vite build",
+    "preview": "bunx --bun vite preview",
+    "typecheck": "bunx --bun svelte-kit sync && bunx --bun svelte-check --fail-on-warnings"
+  },
+  "dependencies": {
+    "@maiq/core": "workspace:*",
+    "@maiq/types": "workspace:*",
+    "@tanstack/svelte-query": "6.2.1",
+    "@zag-js/combobox": "1.44.0",
+    "@zag-js/dialog": "1.44.0",
+    "@zag-js/svelte": "1.44.0",
+    "@zag-js/toast": "1.44.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "3.0.10",
+    "@sveltejs/kit": "2.70.3",
+    "@sveltejs/vite-plugin-svelte": "7.3.0",
+    "svelte": "5.57.1",
+    "svelte-check": "4.7.6",
+    "typescript": "6.0.3",
+    "vite": "8.3.0"
+  }
+}

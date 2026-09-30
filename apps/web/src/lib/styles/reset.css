@@ -1,0 +1,48 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+
+body {
+  min-block-size: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+svg {
+  display: block;
+  max-inline-size: 100%;
+}
+
+input,
+button,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+ol,
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+[data-turnstile-widget]:not([data-interactive]) {
+  position: absolute;
+  inline-size: 0;
+  block-size: 0;
+  overflow: hidden;
+}

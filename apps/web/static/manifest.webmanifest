@@ -1,0 +1,13 @@
+{
+  "name": "maimai queues",
+  "short_name": "maiq",
+  "description": "Live maimai queues at SoCal arcades",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#eaf0f6",
+  "theme_color": "#eaf0f6",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

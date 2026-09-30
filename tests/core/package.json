@@ -1,0 +1,22 @@
+{
+  "name": "maiq-tests-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./*.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@maiq/config": "workspace:*",
+    "@maiq/core": "workspace:*",
+    "@maiq/types": "workspace:*",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "fast-check": "4.10.2"
+  }
+}

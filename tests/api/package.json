@@ -1,0 +1,24 @@
+{
+  "name": "maiq-tests-api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./*.ts"
+  },
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@maiq/api": "workspace:*",
+    "@maiq/bot": "workspace:*",
+    "@maiq/core": "workspace:*",
+    "@maiq/db": "workspace:*",
+    "@maiq/types": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "hono": "4.13.8",
+    "pino": "10.3.1"
+  }
+}

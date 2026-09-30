@@ -1,0 +1,20 @@
+{
+  "name": "@maiq/bot",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "deploy": "bun src/deploy.ts",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@buape/carbon": "0.16.0",
+    "@maiq/config": "workspace:*",
+    "@maiq/core": "workspace:*",
+    "@resvg/resvg-js": "2.6.2"
+  }
+}

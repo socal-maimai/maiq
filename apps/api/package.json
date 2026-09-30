@@ -1,0 +1,25 @@
+{
+  "name": "@maiq/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@maiq/bot": "workspace:*",
+    "@maiq/config": "workspace:*",
+    "@maiq/core": "workspace:*",
+    "@maiq/db": "workspace:*",
+    "@maiq/types": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "hono": "4.13.8",
+    "pino": "10.3.1",
+    "postgres": "3.4.9"
+  }
+}
