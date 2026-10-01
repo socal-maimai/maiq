@@ -1,6 +1,7 @@
 import { describe, expect, spyOn, test } from 'bun:test'
 import type { ButtonReportInput } from '@maiq/core/button-service'
 import {
+  ADMIN_ID,
   createTestBotApp,
   OTHER_DEVICE_ID,
   postJson,
@@ -95,10 +96,35 @@ describe('/setup', () => {
     expect((await t.statusMessages.forChannel('333')).map(r => r.messageId)).toEqual(['800', '800'])
   })
 
-  test('requires Manage Channels', async () => {
+  test('is visible to everyone so maiq admins can run it in any server', async () => {
     const t = await createTestBotApp()
     const setupCommand = t.bot.client.commands.find(c => c.name === 'setup')?.serialize()
-    expect(setupCommand?.default_member_permissions).toBe('16')
+    expect(setupCommand?.default_member_permissions ?? null).toBeNull()
+  })
+
+  test('refuses members without Manage Channels and posts nothing', async () => {
+    const t = await createTestBotApp()
+    const reply = await replyTo(
+      t,
+      commandInteraction('setup', [['arcade', 'lakewood']], { permissions: '0' })
+    )
+    expect(contentOf(reply)).toBe('Only people who can Manage Channels here can run /setup.')
+    expect(await t.statusMessages.forChannel(CHANNEL_ID)).toEqual([])
+    expect(
+      t.discord.calls.some(call => call.method === 'POST' && call.path.includes('/channels/'))
+    ).toBe(false)
+  })
+
+  test('lets a maiq admin run it without Manage Channels', async () => {
+    const t = await createTestBotApp()
+    const reply = await replyTo(
+      t,
+      commandInteraction('setup', [['arcade', 'lakewood']], {
+        userId: ADMIN_ID,
+        permissions: '0',
+      })
+    )
+    expect(contentOf(reply)).toBe('Pinned the live Round1 Lakewood status here.')
   })
 
   test('deletes the posted message when pinning fails', async () => {

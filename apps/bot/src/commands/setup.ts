@@ -2,6 +2,7 @@ import {
   ApplicationCommandOptionType,
   Command,
   Permission,
+  type APIInteractionGuildMember,
   type CommandInteraction,
   type CommandOptions,
   type MessagePayload,
@@ -16,10 +17,14 @@ const MISSING_ACCESS =
   'I need View Channel, Send Messages, Pin Messages, Add Reactions, and Read Message History ' +
   'in this channel. Add them and run /setup again.'
 
+const NOT_ALLOWED = 'Only people who can Manage Channels here can run /setup.'
+
+const canManageChannels = (member: APIInteractionGuildMember | undefined): boolean =>
+  member !== undefined && (BigInt(member.permissions) & BigInt(Permission.ManageChannels)) !== 0n
+
 export class SetupCommand extends Command {
   name = 'setup'
   override description = 'Post and pin the live queue status for an arcade in this channel'
-  override permission = Permission.ManageChannels
   override options: CommandOptions = [
     {
       name: 'arcade',
@@ -45,6 +50,9 @@ export class SetupCommand extends Command {
     const channelId = interaction.rawData.channel?.id
     const guildId = interaction.rawData.guild_id
     if (!channelId || !guildId) return { content: 'Run /setup inside a server channel.' }
+    const member = interaction.rawData.member
+    const isMaiqAdmin = member !== undefined && this.deps.adminIds.includes(member.user.id)
+    if (!isMaiqAdmin && !canManageChannels(member)) return { content: NOT_ALLOWED }
 
     let messageId: string
     try {

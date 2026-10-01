@@ -31,4 +31,5 @@ export type BotDeps = {
   buttons: ButtonService
   statusMessages: StatusMessageStore
   logger: BotLogger
+  adminIds: readonly string[]
 }

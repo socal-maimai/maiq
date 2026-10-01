@@ -56,7 +56,7 @@ export async function createTestApp(options: { bot?: boolean } = {}) {
   const buttons = createButtonService({ db, events: buttonEvents, now: clock.now })
   const statusMessages = createStatusMessageStore(db)
   const discord = options.bot ? await createTestDiscord() : null
-  const botDeps = { queue, buttons, statusMessages, logger }
+  const botDeps = { queue, buttons, statusMessages, logger, adminIds: [ADMIN_ID] }
   const bot = discord
     ? createBot(
         {

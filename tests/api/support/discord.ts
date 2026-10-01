@@ -50,6 +50,7 @@ const base = {
   guild_id: GUILD_ID,
   member: {
     user: { id: USER_ID, username: 'u', discriminator: '0', global_name: null, avatar: null },
+    permissions: '16',
   },
   locale: 'en-US',
   app_permissions: '0',
@@ -58,8 +59,16 @@ const base = {
   attachment_size_limit: 1,
 }
 
-export const commandInteraction = (name: string, options: [string, string][]) => ({
+export const commandInteraction = (
+  name: string,
+  options: [string, string][],
+  member: { userId?: string; permissions?: string } = {}
+) => ({
   ...base,
+  member: {
+    user: { ...base.member.user, id: member.userId ?? USER_ID },
+    permissions: member.permissions ?? base.member.permissions,
+  },
   type: 2,
   data: {
     id: '1',

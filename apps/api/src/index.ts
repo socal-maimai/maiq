@@ -41,7 +41,13 @@ async function main(): Promise<void> {
   const bot = config.discord
     ? createBot(
         { ...config.discord, publicUrl: config.publicUrl },
-        { queue, buttons, statusMessages: createStatusMessageStore(db), logger },
+        {
+          queue,
+          buttons,
+          statusMessages: createStatusMessageStore(db),
+          logger,
+          adminIds: config.admin?.ids ?? [],
+        },
         { gateway: true }
       )
     : null

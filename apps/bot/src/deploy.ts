@@ -20,6 +20,7 @@ const deployOnlyDeps: BotDeps = {
     warn: (details, message) => console.warn(message, details),
     info: (details, message) => console.info(message, details),
   },
+  adminIds: [],
 }
 
 const config = loadConfig({
