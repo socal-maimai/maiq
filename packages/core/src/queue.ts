@@ -5,6 +5,7 @@ export type Writer = {
   lineId: string
   source: ReportSource
   reporter: string
+  reporterName?: string
   inGeofence: boolean | null
 }
 

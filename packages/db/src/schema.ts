@@ -11,6 +11,12 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core'
 
+const moderationColumns = () => ({
+  hiddenAt: timestamp('hidden_at', { withTimezone: true }),
+  hiddenBy: text('hidden_by'),
+  test: boolean('test').notNull().default(false),
+})
+
 export const queueReports = pgTable(
   'queue_reports',
   {
@@ -21,8 +27,10 @@ export const queueReports = pgTable(
     kind: text('kind', { enum: ['report', 'confirm'] }).notNull(),
     source: text('source', { enum: ['web', 'discord'] }).notNull(),
     reporter: text('reporter').notNull(),
+    reporterName: text('reporter_name'),
     inGeofence: boolean('in_geofence'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    ...moderationColumns(),
   },
   table => [
     index('queue_reports_line_created_idx').on(table.lineId, table.createdAt.desc()),
@@ -35,6 +43,7 @@ export const queueReports = pgTable(
     check('queue_reports_queue_range', sql`${table.queue} between 0 and 40`),
     check('queue_reports_kind', sql`${table.kind} in ('report', 'confirm')`),
     check('queue_reports_source', sql`${table.source} in ('web', 'discord')`),
+    index('queue_reports_created_idx').on(table.createdAt.desc()),
   ]
 )
 
@@ -50,6 +59,7 @@ export const buttonReports = pgTable(
     description: text('description').notNull().default(''),
     reporter: text('reporter').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    ...moderationColumns(),
   },
   table => [
     index('button_reports_button_created_idx').on(
@@ -64,6 +74,7 @@ export const buttonReports = pgTable(
     check('button_reports_side', sql`${table.side} in (1, 2)`),
     check('button_reports_button_range', sql`${table.button} between 0 and 8`),
     check('button_reports_kind', sql`${table.kind} in ('works', 'unreliable', 'broken')`),
+    index('button_reports_created_idx').on(table.createdAt.desc()),
     check(
       'button_reports_description',
       sql.join([
@@ -88,3 +99,9 @@ export const discordStatusMessages = pgTable(
     index('discord_status_messages_line_idx').on(table.lineId),
   ]
 )
+
+export const mutedReporters = pgTable('muted_reporters', {
+  reporter: text('reporter').primaryKey(),
+  mutedBy: text('muted_by').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})

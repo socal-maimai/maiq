@@ -60,3 +60,47 @@ export const toButtonStateJson = (state: ButtonState): ButtonStateJson => ({
     at: report.at.getTime(),
   })),
 })
+
+const moderationFields = {
+  id: z.int(),
+  lineId: z.string(),
+  reporter: z.string(),
+  createdAt: z.int(),
+  hiddenAt: z.nullable(z.int()),
+  hiddenBy: z.nullable(z.string()),
+  test: z.boolean(),
+}
+
+export const AdminQueueReportJsonSchema = z.object({
+  ...moderationFields,
+  reporterName: z.nullable(z.string()),
+  players: z.int(),
+  queue: z.int(),
+  kind: z.enum(['report', 'confirm']),
+  source: z.enum(['web', 'discord']),
+  inGeofence: z.nullable(z.boolean()),
+})
+
+export type AdminQueueReportJson = z.output<typeof AdminQueueReportJsonSchema>
+
+export const AdminButtonReportJsonSchema = z.object({
+  ...moderationFields,
+  cab: z.int(),
+  side: z.union([z.literal(1), z.literal(2)]),
+  button: z.int(),
+  kind: z.enum(REPORT_KINDS),
+  description: z.string(),
+})
+
+export type AdminButtonReportJson = z.output<typeof AdminButtonReportJsonSchema>
+
+export const MuteJsonSchema = z.object({
+  reporter: z.string(),
+  mutedBy: z.string(),
+  createdAt: z.int(),
+})
+
+export type MuteJson = z.output<typeof MuteJsonSchema>
+
+export const REPORT_TABLES = ['queue', 'button'] as const
+export type ReportTable = (typeof REPORT_TABLES)[number]

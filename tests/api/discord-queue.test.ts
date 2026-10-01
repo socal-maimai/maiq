@@ -39,6 +39,8 @@ describe('/q', () => {
     expect(contentOf(reply)).toBe('Updated Round1 Burbank: 4p2q')
     const [state] = await t.deps.queue.lineStates(['burbank'])
     expect(state?.count).toEqual({ players: 4, queue: 2 })
+    const { queue } = await t.deps.moderation.recent()
+    expect(queue[0]).toMatchObject({ reporter: 'discord:555', reporterName: 'u' })
   })
 
   test("uses the channel's arcade when none is given", async () => {

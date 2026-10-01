@@ -81,6 +81,14 @@ maiq ships as one Docker image that serves the web app, the API, and the Discord
 5. Invite the bot with the `bot` and `applications.commands` scopes and the View Channel, Send Messages, Pin Messages, Add Reactions, and Read Message History permissions.
 6. In each arcade's channel, run `/setup arcade:<arcade>` to post and pin its live status.
 
+### Admin dashboard
+
+`/admin` lists recent reports and lets admins hide a report, mute a reporter, or send a test report. Hidden reports are kept in the database but leave the live board. A muted reporter's new reports are saved as hidden. Test reports show on the live board and are flagged so stats can skip them.
+
+1. In the developer portal under **OAuth2**, add the redirect `https://<your domain>/auth/discord/callback` and copy the client secret into `MAIQ_DISCORD_CLIENT_SECRET`.
+2. Set `MAIQ_SESSION_SECRET` to a random string of at least 32 characters, for example the output of `openssl rand -hex 32`.
+3. Set `MAIQ_ADMIN_IDS` to a comma-separated list of the Discord user IDs allowed to sign in.
+
 [CI]: https://github.com/socal-maimai/maiq/actions/workflows/ci.yml
 [CI Badge]: https://img.shields.io/github/actions/workflow/status/socal-maimai/maiq/ci.yml?branch=main&label=ci&logo=github&color=8c2451&style=flat-square
 [Bun]: https://bun.sh/

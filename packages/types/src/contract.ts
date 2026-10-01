@@ -69,6 +69,7 @@ export interface RouteConfig {
   body?: Schema
   query?: Schema
   captcha?: boolean
+  admin?: boolean
 }
 
 export interface RouteDefinition<T extends RouteConfig = RouteConfig> {
@@ -81,6 +82,7 @@ export interface RouteDefinition<T extends RouteConfig = RouteConfig> {
     ? T['badResponses']
     : readonly []
   readonly captcha: T['captcha'] extends true ? true : false
+  readonly admin: T['admin'] extends true ? true : false
 }
 
 export function defineRoute<const T extends RouteConfig>(config: T): RouteDefinition<T> {
@@ -92,6 +94,7 @@ export function defineRoute<const T extends RouteConfig>(config: T): RouteDefini
     goodResponses: config.goodResponses,
     badResponses: config.badResponses ?? [],
     captcha: config.captcha === true,
+    admin: config.admin === true,
   } as unknown as RouteDefinition<T>
 }
 

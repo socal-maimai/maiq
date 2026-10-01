@@ -14,6 +14,14 @@ const ConfigSchema = z.object({
   databaseUrl: text(),
   turnstile: z.object({ siteKey: text(), secret: text() }),
   discord: z.optional(z.object({ applicationId: text(), publicKey: text(), token: text() })),
+  admin: z.optional(
+    z.object({
+      clientId: text(),
+      clientSecret: text(),
+      sessionSecret: z.string().check(z.minLength(32)),
+      ids: z.array(z.string().check(z.regex(/^\d{15,21}$/))).check(z.minLength(1)),
+    })
+  ),
 })
 
 export type Config = z.output<typeof ConfigSchema>
@@ -92,6 +100,31 @@ function withoutEmpty(tree: Tree): Tree {
   return result
 }
 
+function listFromEnv(value: string | undefined): string[] | undefined {
+  const items = value
+    ?.split(',')
+    .map(item => item.trim())
+    .filter(item => item !== '')
+  return items?.length ? items : undefined
+}
+
+function discordFromEnv(env: Env): Tree | undefined {
+  const publicKey = env['MAIQ_DISCORD_PUBLIC_KEY'] || undefined
+  const token = env['MAIQ_DISCORD_TOKEN'] || undefined
+  if (!publicKey && !token) return undefined
+  return { applicationId: env['MAIQ_DISCORD_APPLICATION_ID'] || undefined, publicKey, token }
+}
+
+function adminFromEnv(env: Env): Tree | undefined {
+  const fields = {
+    clientSecret: env['MAIQ_DISCORD_CLIENT_SECRET'] || undefined,
+    sessionSecret: env['MAIQ_SESSION_SECRET'] || undefined,
+    ids: listFromEnv(env['MAIQ_ADMIN_IDS']),
+  }
+  if (Object.values(fields).every(value => value === undefined)) return undefined
+  return { clientId: env['MAIQ_DISCORD_APPLICATION_ID'] || undefined, ...fields }
+}
+
 function fromEnv(env: Env): Tree {
   const port = env['MAIQ_PORT']
   return withoutEmpty({
@@ -103,11 +136,8 @@ function fromEnv(env: Env): Tree {
       siteKey: env['MAIQ_TURNSTILE_SITE_KEY'] || undefined,
       secret: env['MAIQ_TURNSTILE_SECRET'] || undefined,
     },
-    discord: {
-      applicationId: env['MAIQ_DISCORD_APPLICATION_ID'] || undefined,
-      publicKey: env['MAIQ_DISCORD_PUBLIC_KEY'] || undefined,
-      token: env['MAIQ_DISCORD_TOKEN'] || undefined,
-    },
+    discord: discordFromEnv(env),
+    admin: adminFromEnv(env),
   })
 }
 

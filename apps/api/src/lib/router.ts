@@ -1,5 +1,7 @@
 import {
   BadCaptcha,
+  BadOrigin,
+  BadSignedOut,
   BadValidation,
   type AnyRouteDefinition,
   type ResponseDefinition,
@@ -11,6 +13,7 @@ import {
 } from '@maiq/types'
 import type { Context, Hono } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
+import type { AdminSession } from '@maiq/api/lib/admin-session'
 import type { AppDeps } from '@maiq/api/lib/deps'
 
 type HandlerArgs<T extends AnyRouteDefinition> = {
@@ -19,6 +22,7 @@ type HandlerArgs<T extends AnyRouteDefinition> = {
   res: RouteResponders<T>
   deps: AppDeps
   ip: string | null
+  admin: T['admin'] extends true ? AdminSession : null
 }
 
 type RouteHandler<T extends AnyRouteDefinition> = (
@@ -86,6 +90,14 @@ export function declareRoute<T extends AnyRouteDefinition>(
     definition,
     mount(app, deps) {
       app.on(definition.method, `/api${definition.path}`, async c => {
+        let admin: AdminSession | null = null
+        if (definition.admin) {
+          admin = deps.adminAuth?.session(c) ?? null
+          if (!admin) return send(c, BadSignedOut)
+          if (definition.method !== 'GET' && !deps.adminAuth?.isSameOrigin(c)) {
+            return send(c, BadOrigin)
+          }
+        }
         let body: unknown
         if (definition.body) {
           const parsed = await readBody(c, definition.body)
@@ -109,6 +121,7 @@ export function declareRoute<T extends AnyRouteDefinition>(
           res,
           deps,
           ip,
+          admin: admin as HandlerArgs<T>['admin'],
         })
         return c.json(result.body as object, result.status as ContentfulStatusCode)
       })

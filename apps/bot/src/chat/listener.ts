@@ -14,6 +14,7 @@ const toChatMessage = (raw: GatewayMessageCreateDispatchData): ChatMessage => ({
   guildId: raw.guild_id ?? null,
   content: raw.content,
   authorId: raw.author.id,
+  authorName: raw.author.username,
   authorIsBot: raw.author.bot === true,
   webhookId: raw.webhook_id ?? null,
 })

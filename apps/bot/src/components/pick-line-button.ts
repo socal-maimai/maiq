@@ -15,7 +15,7 @@ import {
   discordReport,
   logInteractionFailure,
   OUT_OF_DATE,
-  requireUserId,
+  requireUser,
   SOMETHING_WENT_WRONG,
 } from '@maiq/bot/replies'
 
@@ -78,7 +78,7 @@ export class PickLineButton extends Button {
     const parsed = parseCount(String(data['count']))
     if (!line || !parsed.ok) return OUT_OF_DATE
     const result = await this.deps.queue.submitReport(
-      discordReport(line, parsed.count, requireUserId(interaction))
+      discordReport(line, parsed.count, requireUser(interaction))
     )
     if (!result.ok || !fromChat) return describeWrite(line, result, 'Updated')
     await interaction.acknowledge()

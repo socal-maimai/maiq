@@ -6,6 +6,7 @@ import type { QueueService, WriteResult, Writer } from '@maiq/core/queue'
 import { queueReports, type Database } from '@maiq/db'
 import type { LineEvents } from '@maiq/api/lib/events'
 import { loadLineStates } from '@maiq/api/services/line-states'
+import { hiddenFieldsFor } from '@maiq/api/services/mutes'
 
 export const REPORT_COOLDOWN_MS = 60_000
 export const CONFIRM_COOLDOWN_MS = 5 * 60_000
@@ -54,8 +55,10 @@ export function createQueueService({ db, events, now }: QueueServiceOptions): Qu
         kind,
         source: writer.source,
         reporter: writer.reporter,
+        reporterName: writer.reporterName ?? null,
         inGeofence: writer.inGeofence,
         createdAt: at,
+        ...(await hiddenFieldsFor(tx, writer.reporter, at)),
       })
       return 0
     })

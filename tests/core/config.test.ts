@@ -73,6 +73,60 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ dir, env: { MAIQ_DISCORD_TOKEN: 'token' } })).toThrow(/discord/)
   })
 
+  const DISCORD_ENV = {
+    MAIQ_DISCORD_APPLICATION_ID: '111',
+    MAIQ_DISCORD_PUBLIC_KEY: 'abc',
+    MAIQ_DISCORD_TOKEN: 'token',
+  }
+  const ADMIN_ENV = {
+    MAIQ_DISCORD_CLIENT_SECRET: 'client-secret',
+    MAIQ_SESSION_SECRET: 's'.repeat(32),
+    MAIQ_ADMIN_IDS: ' 123456789012345678, 876543210987654321 ,',
+  }
+
+  test('reads the admin settings and splits the admin ID list', () => {
+    writeFileSync(path.join(dir, '00-defaults.yaml'), BASE)
+    const config = loadConfig({ dir, env: { ...DISCORD_ENV, ...ADMIN_ENV } })
+    expect(config.admin).toEqual({
+      clientId: '111',
+      clientSecret: 'client-secret',
+      sessionSecret: 's'.repeat(32),
+      ids: ['123456789012345678', '876543210987654321'],
+    })
+  })
+
+  test('leaves the admin dashboard off when no admin settings are set', () => {
+    writeFileSync(path.join(dir, '00-defaults.yaml'), BASE)
+    expect(
+      loadConfig({ dir, env: { ...DISCORD_ENV, MAIQ_ADMIN_IDS: ' , ' } }).admin
+    ).toBeUndefined()
+  })
+
+  test('runs the admin dashboard without the bot when only the application ID is set', () => {
+    writeFileSync(path.join(dir, '00-defaults.yaml'), BASE)
+    const env = { MAIQ_DISCORD_APPLICATION_ID: '111', ...ADMIN_ENV }
+    const config = loadConfig({ dir, env })
+    expect(config.discord).toBeUndefined()
+    expect(config.admin?.clientId).toBe('111')
+  })
+
+  test('rejects admin settings without the application ID', () => {
+    writeFileSync(path.join(dir, '00-defaults.yaml'), BASE)
+    expect(() => loadConfig({ dir, env: ADMIN_ENV })).toThrow(/clientId/)
+  })
+
+  test('rejects a short session secret', () => {
+    writeFileSync(path.join(dir, '00-defaults.yaml'), BASE)
+    const env = { ...DISCORD_ENV, ...ADMIN_ENV, MAIQ_SESSION_SECRET: 'short' }
+    expect(() => loadConfig({ dir, env })).toThrow(/sessionSecret/)
+  })
+
+  test('rejects an admin ID that is not a Discord user ID', () => {
+    writeFileSync(path.join(dir, '00-defaults.yaml'), BASE)
+    const env = { ...DISCORD_ENV, ...ADMIN_ENV, MAIQ_ADMIN_IDS: 'enscribe' }
+    expect(() => loadConfig({ dir, env })).toThrow(/ids/)
+  })
+
   test('explains invalid values', () => {
     writeFileSync(path.join(dir, '00-defaults.yaml'), BASE)
     expect(() => loadConfig({ dir, env: { MAIQ_PORT: 'abc' } })).toThrow(/port/)

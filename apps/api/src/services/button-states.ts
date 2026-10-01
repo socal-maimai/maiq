@@ -8,6 +8,7 @@ import {
   type ReportKind,
 } from '@maiq/core/buttons'
 import { buttonReports, type Database } from '@maiq/db'
+import { isShown } from '@maiq/api/services/mutes'
 
 const columns = {
   lineId: buttonReports.lineId,
@@ -68,7 +69,13 @@ export async function loadButtonStates(
   const rows = await db
     .select(columns)
     .from(buttonReports)
-    .where(and(inArray(buttonReports.lineId, [...lineIds]), lte(buttonReports.createdAt, now)))
+    .where(
+      and(
+        inArray(buttonReports.lineId, [...lineIds]),
+        lte(buttonReports.createdAt, now),
+        isShown(buttonReports.hiddenAt)
+      )
+    )
     .orderBy(...newestFirst)
   return toStates(rows, now).toSorted(byPosition(lineIds))
 }
@@ -87,7 +94,8 @@ export async function loadButtonState(
         eq(buttonReports.cab, ref.cab),
         eq(buttonReports.side, ref.side),
         eq(buttonReports.button, ref.button),
-        lte(buttonReports.createdAt, now)
+        lte(buttonReports.createdAt, now),
+        isShown(buttonReports.hiddenAt)
       )
     )
     .orderBy(...newestFirst)

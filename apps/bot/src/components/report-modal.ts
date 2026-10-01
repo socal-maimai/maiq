@@ -14,7 +14,7 @@ import {
   discordReport,
   OUT_OF_DATE,
   replySafely,
-  requireUserId,
+  requireUser,
 } from '@maiq/bot/replies'
 
 const MAX_TITLE_LENGTH = 45
@@ -66,7 +66,7 @@ export class ReportModal extends Modal {
       const queue = parseSmallInt(interaction.fields.getText('queue', true))
       if (players === null || queue === null) return { content: NOT_NUMBERS }
       const result = await this.deps.queue.submitReport(
-        discordReport(line, { players, queue }, requireUserId(interaction))
+        discordReport(line, { players, queue }, requireUser(interaction))
       )
       return { content: describeWrite(line, result, 'Updated') }
     })

@@ -1,4 +1,11 @@
 import type { MountableRoute } from '@maiq/api/lib/router'
+import {
+  adminModerationRoute,
+  adminMuteRoute,
+  adminReportsRoute,
+  adminSessionRoute,
+  adminTestReportRoute,
+} from '@maiq/api/routes/admin'
 import { buttonReportRoute } from '@maiq/api/routes/button-reports'
 import { buttonsRoute } from '@maiq/api/routes/buttons'
 import { clientConfigRoute } from '@maiq/api/routes/client-config'
@@ -13,4 +20,9 @@ export const ROUTES: readonly MountableRoute[] = [
   confirmRoute,
   buttonsRoute,
   buttonReportRoute,
+  adminSessionRoute,
+  adminReportsRoute,
+  adminModerationRoute,
+  adminMuteRoute,
+  adminTestReportRoute,
 ]

@@ -94,6 +94,8 @@ describe('chat messages', () => {
     expect(t.discord.calls).toEqual([
       { method: 'PUT', path: reactionPath(message.id), body: undefined, files: [] },
     ])
+    const { queue } = await t.deps.moderation.recent()
+    expect(queue[0]).toMatchObject({ reporter: `discord:${USER_ID}`, reporterName: 'u' })
   })
 
   test('replies with the cap without pinging the author', async () => {

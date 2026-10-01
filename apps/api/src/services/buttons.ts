@@ -5,6 +5,7 @@ import { buttonKey, checkDescription, isButtonOf, type ButtonRef } from '@maiq/c
 import { buttonReports, type Database } from '@maiq/db'
 import type { ButtonEvents } from '@maiq/api/lib/events'
 import { loadButtonState, loadButtonStates } from '@maiq/api/services/button-states'
+import { hiddenFieldsFor } from '@maiq/api/services/mutes'
 
 export const REPORT_WINDOW_MS = 10 * 60_000
 export const MAX_REPORTS_PER_WINDOW = 30
@@ -64,6 +65,7 @@ export function createButtonService({ db, events, now }: ButtonServiceOptions): 
         description,
         reporter: input.reporter,
         createdAt: at,
+        ...(await hiddenFieldsFor(tx, input.reporter, at)),
       })
       return null
     })

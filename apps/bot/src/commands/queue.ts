@@ -15,7 +15,7 @@ import {
   describeWrite,
   discordReport,
   replySafely,
-  requireUserId,
+  requireUser,
   targetArcade,
 } from '@maiq/bot/replies'
 
@@ -57,10 +57,10 @@ export class QueueCommand extends Command {
     if (!parsed.ok) return { content: parsed.reason }
     const arcade = await targetArcade(interaction, this.deps.statusMessages)
     if (!arcade) return { content: NO_ARCADE }
-    const userId = requireUserId(interaction)
+    const user = requireUser(interaction)
     const only = soleLine(arcade)
     if (only) {
-      const result = await this.deps.queue.submitReport(discordReport(only, parsed.count, userId))
+      const result = await this.deps.queue.submitReport(discordReport(only, parsed.count, user))
       return { content: describeWrite(only, result, 'Updated') }
     }
     return {

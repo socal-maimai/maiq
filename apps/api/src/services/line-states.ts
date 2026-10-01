@@ -9,6 +9,7 @@ import {
   type ReportSource,
 } from '@maiq/core/state'
 import { queueReports, type Database } from '@maiq/db'
+import { isShown } from '@maiq/api/services/mutes'
 
 const columns = {
   lineId: queueReports.lineId,
@@ -52,14 +53,21 @@ export async function loadLineStates(
         and(
           inArray(queueReports.lineId, ids),
           gt(queueReports.createdAt, since),
-          lte(queueReports.createdAt, now)
+          lte(queueReports.createdAt, now),
+          isShown(queueReports.hiddenAt)
         )
       )
       .orderBy(desc(queueReports.createdAt), desc(queueReports.id)),
     db
       .selectDistinctOn([queueReports.lineId], columns)
       .from(queueReports)
-      .where(and(inArray(queueReports.lineId, ids), lte(queueReports.createdAt, now)))
+      .where(
+        and(
+          inArray(queueReports.lineId, ids),
+          lte(queueReports.createdAt, now),
+          isShown(queueReports.hiddenAt)
+        )
+      )
       .orderBy(queueReports.lineId, desc(queueReports.createdAt), desc(queueReports.id)),
   ])
   const rowsByLine = Map.groupBy([...recent, ...latest], row => row.lineId)

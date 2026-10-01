@@ -5,12 +5,14 @@ import type { ButtonState } from '@maiq/core/button-service'
 import type { LineState } from '@maiq/core/state'
 import { createDatabase } from '@maiq/db'
 import { createApp } from '@maiq/api/app'
+import { createAdminAuth } from '@maiq/api/lib/admin-auth'
 import { createEvents } from '@maiq/api/lib/events'
 import { createLogger } from '@maiq/api/lib/logger'
 import { runMigrations } from '@maiq/api/lib/migrations'
 import { shutdown } from '@maiq/api/lib/shutdown'
 import { createTurnstileVerifier } from '@maiq/api/lib/turnstile'
 import { createButtonService } from '@maiq/api/services/buttons'
+import { createModerationService } from '@maiq/api/services/moderation'
 import { createQueueService } from '@maiq/api/services/queue'
 import { createStatusMessageStore } from '@maiq/api/services/status-messages'
 
@@ -49,6 +51,19 @@ async function main(): Promise<void> {
     logger.warn('Discord is not configured (MAIQ_DISCORD_*), so the bot is off')
   }
 
+  const adminAuth = config.admin
+    ? createAdminAuth({
+        clientId: config.admin.clientId,
+        clientSecret: config.admin.clientSecret,
+        sessionSecret: config.admin.sessionSecret,
+        ids: config.admin.ids,
+        publicUrl: config.publicUrl,
+        logger,
+        now: () => new Date(),
+      })
+    : null
+  if (!adminAuth) logger.warn('Admin sign-in is not configured (MAIQ_ADMIN_IDS), so /admin is off')
+
   const app = createApp({
     db,
     logger,
@@ -65,6 +80,8 @@ async function main(): Promise<void> {
       logger,
     }),
     discordHandler: bot ? request => bot.handleInteraction(request) : null,
+    adminAuth,
+    moderation: createModerationService({ db, events, buttonEvents, now: () => new Date() }),
   })
   const server = Bun.serve({
     port: config.port,

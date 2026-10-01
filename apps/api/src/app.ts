@@ -23,6 +23,7 @@ export function createApp(deps: AppDeps): Hono {
     )
   })
 
+  deps.adminAuth?.mount(app)
   for (const route of ROUTES) route.mount(app, deps)
   mountStream(app, deps)
 

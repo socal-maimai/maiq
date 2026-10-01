@@ -44,24 +44,28 @@ export function describeWrite(
   }
 }
 
-export const discordReport = (line: Line, count: Count, userId: string): ReportInput => ({
+export type DiscordReporter = { id: string; username: string }
+
+export const discordReport = (line: Line, count: Count, user: DiscordReporter): ReportInput => ({
   lineId: line.id,
   count,
   source: 'discord',
-  reporter: `discord:${userId}`,
+  reporter: `discord:${user.id}`,
+  reporterName: user.username,
   inGeofence: null,
 })
 
-export const discordConfirm = (line: Line, userId: string): ConfirmInput => ({
+export const discordConfirm = (line: Line, user: DiscordReporter): ConfirmInput => ({
   lineId: line.id,
   source: 'discord',
-  reporter: `discord:${userId}`,
+  reporter: `discord:${user.id}`,
+  reporterName: user.username,
   inGeofence: null,
 })
 
-export function requireUserId(interaction: { userId: string | undefined }): string {
-  if (!interaction.userId) throw new Error('Discord interaction arrived without a user id')
-  return interaction.userId
+export function requireUser(interaction: { user: DiscordReporter | null }): DiscordReporter {
+  if (!interaction.user) throw new Error('Discord interaction arrived without a user')
+  return { id: interaction.user.id, username: interaction.user.username }
 }
 
 export async function targetArcade(

@@ -1,5 +1,11 @@
 import { response } from '@maiq/types/contract'
-import { ButtonStateJsonSchema, LineStateJsonSchema } from '@maiq/types/models'
+import {
+  AdminButtonReportJsonSchema,
+  AdminQueueReportJsonSchema,
+  ButtonStateJsonSchema,
+  LineStateJsonSchema,
+  MuteJsonSchema,
+} from '@maiq/types/models'
 import { z } from 'zod/mini'
 
 const LinePayload = z.object({ line: LineStateJsonSchema })
@@ -104,4 +110,51 @@ export const BadButtonCooldown = response('badButtonCooldown', {
   status: 429,
   message: 'You reported this button a few minutes ago.',
   data: RetryAfter,
+})
+
+export const BadSignedOut = response('badSignedOut', {
+  status: 401,
+  message: 'Sign in with Discord to use the admin dashboard.',
+})
+
+export const BadOrigin = response('badOrigin', {
+  status: 403,
+  message: 'This request came from another site.',
+})
+
+export const BadUnknownReport = response('badUnknownReport', {
+  status: 404,
+  message: 'That report does not exist.',
+})
+
+export const GoodAdminSession = response('goodAdminSession', {
+  status: 200,
+  message: 'Signed in.',
+  data: z.object({ id: z.string(), name: z.string() }),
+})
+
+export const GoodAdminReports = response('goodAdminReports', {
+  status: 200,
+  message: 'Recent reports.',
+  data: z.object({
+    queue: z.array(AdminQueueReportJsonSchema),
+    buttons: z.array(AdminButtonReportJsonSchema),
+    mutes: z.array(MuteJsonSchema),
+  }),
+})
+
+export const GoodModeration = response('goodModeration', {
+  status: 200,
+  message: 'Report updated.',
+})
+
+export const GoodMute = response('goodMute', {
+  status: 200,
+  message: 'Mute updated.',
+})
+
+export const GoodTestReport = response('goodTestReport', {
+  status: 200,
+  message: 'Test report sent.',
+  data: LinePayload,
 })

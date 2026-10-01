@@ -8,7 +8,7 @@ import {
   discordConfirm,
   OUT_OF_DATE,
   replySafely,
-  requireUserId,
+  requireUser,
 } from '@maiq/bot/replies'
 
 export class ConfirmButton extends Button {
@@ -33,7 +33,7 @@ export class ConfirmButton extends Button {
     await replySafely(interaction, this.deps.logger, 'confirm button', async () => {
       const line = lineFromData(data)
       if (!line) return { content: OUT_OF_DATE }
-      const result = await this.deps.queue.confirm(discordConfirm(line, requireUserId(interaction)))
+      const result = await this.deps.queue.confirm(discordConfirm(line, requireUser(interaction)))
       return { content: describeWrite(line, result, 'Confirmed') }
     })
   }

@@ -19,6 +19,7 @@ export type ChatMessage = {
   guildId: string | null
   content: string
   authorId: string
+  authorName: string
   authorIsBot: boolean
   webhookId: string | null
 }
@@ -77,7 +78,9 @@ async function record(message: ChatMessage, deps: BotDeps, rest: RequestClient):
     await askForLine(message, arcade, count, deps, rest)
     return
   }
-  const result = await deps.queue.submitReport(discordReport(line, count, message.authorId))
+  const result = await deps.queue.submitReport(
+    discordReport(line, count, { id: message.authorId, username: message.authorName })
+  )
   if (result.ok) {
     await addCheckMark(rest, message.channelId, message.id)
     return

@@ -1,0 +1,1 @@
+ALTER TABLE "queue_reports" ADD COLUMN "reporter_name" text;
