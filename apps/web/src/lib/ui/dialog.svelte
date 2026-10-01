@@ -71,6 +71,29 @@
     return () => node.remove()
   }
 
+  const fitVisualViewport: Attachment<HTMLElement> = node => {
+    const viewport = window.visualViewport
+    if (!viewport) return
+    const place = () => {
+      node.style.setProperty('--visible-top', `${viewport.offsetTop}px`)
+      node.style.setProperty('--visible-height', `${viewport.height}px`)
+    }
+    const resize = () => {
+      place()
+      const focused = document.activeElement
+      if (focused instanceof HTMLElement && content?.contains(focused)) {
+        focused.scrollIntoView({ block: 'center' })
+      }
+    }
+    place()
+    viewport.addEventListener('resize', resize)
+    viewport.addEventListener('scroll', place)
+    return () => {
+      viewport.removeEventListener('resize', resize)
+      viewport.removeEventListener('scroll', place)
+    }
+  }
+
   const trackScroll: Attachment<HTMLElement> = node => {
     const update = () => {
       scrolled = node.scrollTop > 2
@@ -81,7 +104,7 @@
 </script>
 
 {#if mounted}
-  <dialog-root {@attach portal}>
+  <dialog-root {@attach portal} {@attach fitVisualViewport}>
     <div
       bind:this={backdrop}
       {...api.getBackdropProps()}
@@ -136,7 +159,9 @@
 
   [data-part='positioner'] {
     position: fixed;
-    inset: 0;
+    inset-block-start: var(--visible-top, 0px);
+    inset-inline: 0;
+    block-size: var(--visible-height, 100%);
     z-index: calc(var(--layer-dialog) + var(--layer-index, 0) * 2);
     display: flex;
   }

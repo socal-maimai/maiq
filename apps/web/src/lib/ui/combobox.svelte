@@ -15,6 +15,8 @@
 
   let filtered = $derived(items)
 
+  const touch = matchMedia('(pointer: coarse)').matches
+
   const collection = $derived(
     combobox.collection({
       items: filtered,
@@ -33,6 +35,9 @@
     positioning: {
       strategy: 'fixed' as const,
       sameWidth: true,
+      fitViewport: true,
+      flip: true,
+      overflowPadding: 12,
       gutter: 6,
       placement: 'bottom-start' as const,
     },
@@ -53,7 +58,11 @@
 <div {...api.getRootProps()}>
   <label {...api.getLabelProps()}>{label}</label>
   <div {...api.getControlProps()}>
-    <input {...api.getInputProps()} />
+    <input
+      {...api.getInputProps()}
+      readonly={touch || undefined}
+      inputmode={touch ? 'none' : undefined}
+    />
     <button {...api.getTriggerProps()} aria-label="Show all">
       <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path
@@ -113,6 +122,11 @@
     border: 0;
     outline: none;
 
+    &[readonly] {
+      cursor: pointer;
+      caret-color: transparent;
+    }
+
     &::placeholder {
       font-weight: var(--weight-regular);
       color: var(--muted);
@@ -152,7 +166,7 @@
   }
 
   [data-part='content'] {
-    max-block-size: 16rem;
+    max-block-size: min(16rem, var(--available-height, 16rem));
     padding: 0.35rem;
     overflow-y: auto;
     overscroll-behavior: contain;

@@ -29,6 +29,6 @@
     {items}
     label="Home arcade"
     bind:value={() => viewer.homeArcadeId, pick}
-    placeholder="Search arcades"
+    placeholder="Pick an arcade"
   />
 </Dialog>

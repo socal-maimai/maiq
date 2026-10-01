@@ -176,7 +176,7 @@
       {items}
       label="Arcade"
       bind:value={() => arcadeId, pickArcade}
-      placeholder="Search arcades"
+      placeholder="Pick an arcade"
     />
 
     {#if arcade && arcade.lines.length > 1}
