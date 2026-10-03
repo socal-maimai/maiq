@@ -2,7 +2,9 @@ import { describe, expect, test } from 'bun:test'
 import { COUNT_HINT } from '@maiq/core/count'
 import { createTestBotApp } from 'maiq-tests-api/support/app'
 import {
+  autocompleteInteraction,
   buttonInteraction,
+  callbacks,
   CHANNEL_ID,
   commandInteraction,
   contentOf,
@@ -113,9 +115,50 @@ describe('/q', () => {
     )
   })
 
-  test('registers the arcade option with fixed choices', async () => {
+  test('registers the arcade option as autocomplete instead of fixed choices', async () => {
     const t = await createTestBotApp()
-    const q = t.bot.client.commands.find(c => c.name === 'q')?.serialize()
-    expect(JSON.stringify(q)).toContain('"value":"lakewood"')
+    const q = t.bot.client.commands.find(c => c.name === 'q')?.serialize() as {
+      options: { name: string; autocomplete?: boolean; choices?: unknown }[]
+    }
+    const arcade = q.options.find(option => option.name === 'arcade')
+    expect(arcade).toMatchObject({ autocomplete: true })
+    expect(arcade?.choices).toBeUndefined()
+  })
+
+  test('suggests arcades matching what was typed', async () => {
+    const t = await createTestBotApp()
+    await t.send(autocompleteInteraction('q', 'arcade', 'stones'))
+    await waitFor(() => callbacks(t.discord.calls).length > 0, 'the autocomplete answer')
+    expect(callbacks(t.discord.calls)[0]).toEqual({
+      type: 8,
+      data: { choices: [{ name: 'Round1 Stonestown', value: 'stonestown' }] },
+    })
+  })
+
+  test('caps empty-query suggestions at 25 and lists the channel region first', async () => {
+    const t = await createTestBotApp()
+    await t.statusMessages.replaceForChannel({
+      guildId: GUILD_ID,
+      channelId: CHANNEL_ID,
+      messageId: '700',
+      lineIds: ['stonestown'],
+    })
+    await t.send(autocompleteInteraction('q', 'arcade', ''))
+    await waitFor(() => callbacks(t.discord.calls).length > 0, 'the autocomplete answer')
+    const [answer] = callbacks(t.discord.calls) as { data: { choices: { value: string }[] } }[]
+    expect(answer?.data.choices).toHaveLength(25)
+    expect(answer?.data.choices[0]?.value).toBe('stonestown')
+  })
+
+  test('accepts an arcade name typed without picking a suggestion', async () => {
+    const t = await createTestBotApp()
+    const reply = await replyTo(
+      t,
+      commandInteraction('q', [
+        ['count', '2p1q'],
+        ['arcade', 'Round1 Eastridge'],
+      ])
+    )
+    expect(contentOf(reply)).toBe('Updated Round1 Eastridge: 2p1q')
   })
 })

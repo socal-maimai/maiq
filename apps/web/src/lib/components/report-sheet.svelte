@@ -1,12 +1,13 @@
 <script lang="ts">
   import {
-    ARCADES,
+    arcadesIn,
     findArcade,
     findLine,
     lineName,
     soleLine,
     sortByDistance,
     type Line,
+    type RegionId,
   } from '@maiq/core/arcades'
   import { cabsText, checkCount, MAX_QUEUE, maxPlayers } from '@maiq/core/caps'
   import { distanceMiles, FAR_MILES, formatMiles } from '@maiq/core/geo'
@@ -25,6 +26,9 @@
   import { writerFields } from '$lib/writes'
 
   type Errors = { players?: string; queue?: string; form?: string }
+  type Props = { region: RegionId }
+
+  let { region }: Props = $props()
 
   const id = $props.id()
   const queryClient = useQueryClient()
@@ -41,7 +45,8 @@
 
   const items = $derived.by(() => {
     const origin = viewer.origin
-    const arcades = origin.kind === 'none' ? ARCADES : sortByDistance(origin.point)
+    const regional = arcadesIn(region)
+    const arcades = origin.kind === 'none' ? regional : sortByDistance(origin.point, regional)
     return arcades.map(arcade => ({ value: arcade.id, label: arcade.name }))
   })
 
@@ -59,8 +64,9 @@
 
   function startArcadeId(): string | null {
     const origin = viewer.origin
-    if (origin.kind === 'position') return origin.near.id
-    return origin.kind === 'home' ? origin.arcade.id : null
+    const start =
+      origin.kind === 'position' ? origin.near : origin.kind === 'home' ? origin.arcade : null
+    return start?.region === region ? start.id : null
   }
 
   export function show(lineId: string | null = null): void {

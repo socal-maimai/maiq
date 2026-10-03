@@ -10,11 +10,11 @@
 
 </div>
 
-maiq tracks live [maimai DX](https://maimai.sega.com/) queues at arcades across Southern California. Players report how many people are playing and waiting in shorthand (`4p2q` means &ldquo;4 playing, 2 queuing&rdquo;), and everyone else sees the current count, how old it is, and how long they would wait if they left now.
+maiq tracks live [maimai DX](https://maimai.sega.com/) queues at arcades across California. Players report how many people are playing and waiting in shorthand (`4p2q` means &ldquo;4 playing, 2 queuing&rdquo;), and everyone else sees the current count, how old it is, and how long they would wait if they left now.
 
 There are two places where you can report a queue:
 
-- The website sorts arcades by distance and detects if you are standing inside an arcade. Reports from inside an arcade are &ldquo;verified&rdquo; and outrank reports more distant.
+- The website opens on a map of California and splits arcades into SoCal and NorCal pages. Each page sorts its arcades by distance and detects if you are standing inside an arcade. Reports from inside an arcade are &ldquo;verified&rdquo; and outrank reports more distant.
 - The Discord bot pins a live status message in each arcade's channel and reads counts from chat. The bot will react with ✅ if it properly parses and updates a report.
 
 maiq also tracks cabinet hardware. Anyone can report a button or cabinet as unreliable/broken, or a whole side as down.
@@ -51,6 +51,10 @@ maiq requires [Bun v1.3+](https://bun.sh/) and Docker.
    ```
 
    The web app runs at http://localhost:5180 and proxies `/api` to the API on port 3000. `maiq.d/00-defaults.yaml` uses Cloudflare's dummy Turnstile keys for local development purposes.
+
+Arcades are listed in `packages/core/src/arcades.ts`. Each one has a region (`socal` or `norcal`), exact coordinates (used for the 400 m "verified" check), and an `unofficial` flag for cabinets that are not on SEGA's network.
+
+The California outline in `apps/web/src/lib/map/california.ts` is generated from the US Census Bureau's [cartographic boundary files](https://www.census.gov/geographies/mapping-files/time-series/geo/cartographic-boundary.html). Extract California's rings from `cb_2023_us_state_500k` as a JSON array of `[lng, lat]` rings, then run `bun apps/web/scripts/california-outline.ts <rings.json> apps/web/src/lib/map/california.ts`.
 
 Before committing, run `bun run lint`, `bun run format:check`, `bun run typecheck`, and `bun run test`. If you change `packages/db/src/schema.ts`, run `bun run db:generate` and commit the new migration.
 

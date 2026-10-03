@@ -46,6 +46,11 @@
       {:else}
         <span>{place}</span>
       {/if}
+      {#if arcade.unofficial}
+        <unofficial-tag title="Not on SEGA's network, so Aime cards won't save plays here">
+          Unofficial
+        </unofficial-tag>
+      {/if}
       <button type="button" aria-label={statusLabel} onclick={onOpenButtons}>
         <CabPill {cabs} />
         {#if issues?.worst}
@@ -73,6 +78,15 @@
 </article>
 
 <style>
+  unofficial-tag {
+    padding: 0.1rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: var(--weight-heavy);
+    color: var(--warning-ink);
+    background: var(--warning-bg);
+    border-radius: var(--radius-pill);
+  }
+
   article {
     position: relative;
     padding: 1rem;

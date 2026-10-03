@@ -2,6 +2,9 @@ import { describe, expect, test } from 'bun:test'
 import {
   ARCADES,
   arcadeOfLine,
+  arcadesIn,
+  resolveArcade,
+  searchArcades,
   findArcade,
   findLine,
   LINE_IDS,
@@ -18,9 +21,32 @@ import { distanceMeters } from '@maiq/core/geo'
 import { arcade, line } from 'maiq-tests-core/support/lookup'
 
 describe('arcade data', () => {
-  test('has 15 arcades with unique ids', () => {
-    expect(ARCADES).toHaveLength(15)
-    expect(new Set(ARCADES.map(a => a.id)).size).toBe(15)
+  test('has 27 arcades with unique ids, 15 in SoCal and 12 in NorCal', () => {
+    expect(ARCADES).toHaveLength(27)
+    expect(new Set(ARCADES.map(a => a.id)).size).toBe(27)
+    expect(arcadesIn('socal')).toHaveLength(15)
+    expect(arcadesIn('norcal')).toHaveLength(12)
+  })
+
+  test('puts every arcade in the region its location belongs to', () => {
+    const sacramento = { lat: 38.58, lng: -121.49 }
+    const losAngeles = { lat: 34.05, lng: -118.24 }
+    for (const a of ARCADES) {
+      const north = a.location.lat > 35.8
+      expect({ id: a.id, region: a.region }).toEqual({
+        id: a.id,
+        region: north ? 'norcal' : 'socal',
+      })
+    }
+    expect(nearestArcade(sacramento).region).toBe('norcal')
+    expect(nearestArcade(losAngeles).region).toBe('socal')
+  })
+
+  test('marks only the off-network arcades as unofficial', () => {
+    expect(ARCADES.filter(a => a.unofficial).map(a => a.id)).toEqual([
+      'factory-tea-bar',
+      'hazes-toys',
+    ])
   })
 
   test('has unique line ids that point back at their arcade', () => {
@@ -134,5 +160,36 @@ describe('caps', () => {
     expect(checkCount(line('2nd-loop'), { players: 2, queue: 40 })).toBeNull()
     expect(checkCount(line('2nd-loop'), { players: 3, queue: 0 })).toBe('playersOverCap')
     expect(checkCount(line('2nd-loop'), { players: 0, queue: MAX_QUEUE + 1 })).toBe('queueOverCap')
+  })
+})
+
+describe('searchArcades', () => {
+  test('matches every word against name, city and id', () => {
+    expect(searchArcades('round1 san jose').map(a => a.id)).toEqual(['eastridge'])
+    expect(searchArcades('golfland').map(a => a.id)).toEqual([
+      'camelot-golfland',
+      'roseville-golfland',
+      'fairfield-golfland',
+    ])
+  })
+
+  test('ignores case and punctuation', () => {
+    expect(searchArcades("HAZE'S").map(a => a.id)).toEqual(['hazes-toys'])
+  })
+
+  test('returns nothing for an unknown arcade', () => {
+    expect(searchArcades('dance dance')).toEqual([])
+  })
+})
+
+describe('resolveArcade', () => {
+  test('accepts an id, an exact name or a unique partial match', () => {
+    expect(resolveArcade('burbank')?.id).toBe('burbank')
+    expect(resolveArcade('round1 stonestown')?.id).toBe('stonestown')
+    expect(resolveArcade('turlock')?.id).toBe('ten-pin-turlock')
+  })
+
+  test('refuses a partial match that fits several arcades', () => {
+    expect(resolveArcade('kiddleton')).toBeUndefined()
   })
 })

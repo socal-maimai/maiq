@@ -1,10 +1,17 @@
-import type { CommandInteraction, MessagePayload } from '@buape/carbon'
+import {
+  ApplicationCommandOptionType,
+  type AutocompleteInteraction,
+  type CommandInteraction,
+  type CommandOption,
+  type MessagePayload,
+} from '@buape/carbon'
 import {
   ARCADES,
   arcadeOfLine,
-  findArcade,
   findLine,
   lineName,
+  resolveArcade,
+  searchArcades,
   type Arcade,
   type Line,
 } from '@maiq/core/arcades'
@@ -17,7 +24,35 @@ import type { BotLogger, StatusMessageStore } from '@maiq/bot/deps'
 export const SOMETHING_WENT_WRONG = 'Something went wrong on our side. Try again in a minute.'
 export const OUT_OF_DATE = 'That button is out of date. Post the count in chat or use /q.'
 
-export const ARCADE_CHOICES = ARCADES.map(arcade => ({ name: arcade.name, value: arcade.id }))
+const MAX_CHOICES = 25
+
+async function suggestArcades(
+  interaction: AutocompleteInteraction,
+  statusMessages: StatusMessageStore
+): Promise<void> {
+  const focused = interaction.options.getFocused()
+  const query = typeof focused?.value === 'string' ? focused.value.trim() : ''
+  let arcades: Arcade[] = query ? searchArcades(query) : [...ARCADES]
+  const channelId = interaction.rawData.channel?.id
+  if (!query && channelId) {
+    const region = (await channelArcade(statusMessages, channelId))?.region
+    arcades = arcades.toSorted((a, b) => Number(b.region === region) - Number(a.region === region))
+  }
+  await interaction.respond(
+    arcades.slice(0, MAX_CHOICES).map(arcade => ({ name: arcade.name, value: arcade.id }))
+  )
+}
+
+export const arcadeOption = (
+  statusMessages: StatusMessageStore,
+  options: { description: string; required: boolean }
+): CommandOption => ({
+  name: 'arcade',
+  description: options.description,
+  type: ApplicationCommandOptionType.String,
+  required: options.required,
+  autocomplete: interaction => suggestArcades(interaction, statusMessages),
+})
 
 export function describeWrite(
   line: Line,
@@ -73,7 +108,7 @@ export async function targetArcade(
   statusMessages: StatusMessageStore
 ): Promise<Arcade | undefined> {
   const chosen = interaction.options.getString('arcade')
-  if (chosen) return findArcade(chosen)
+  if (chosen) return resolveArcade(chosen)
   const channelId = interaction.rawData.channel?.id
   if (!channelId) return undefined
   return channelArcade(statusMessages, channelId)

@@ -8,30 +8,57 @@ export type Line = {
   keywords: readonly string[]
 }
 
+export const REGIONS = [
+  { id: 'socal', name: 'SoCal', fullName: 'Southern California' },
+  { id: 'norcal', name: 'NorCal', fullName: 'Northern California' },
+] as const
+
+export type Region = (typeof REGIONS)[number]
+export type RegionId = Region['id']
+
 export type Arcade = {
   id: string
   name: string
   city: string
+  region: RegionId
+  unofficial: boolean
   location: Point
   lines: readonly Line[]
 }
 
-function singleLine(id: string, name: string, city: string, location: Point, cabs: number): Arcade {
+type SingleLineArcade = {
+  id: string
+  name: string
+  city: string
+  region: RegionId
+  location: Point
+  cabs: number
+  unofficial?: boolean
+}
+
+function singleLine({ cabs, unofficial = false, ...arcade }: SingleLineArcade): Arcade {
   return {
-    id,
-    name,
-    city,
-    location,
-    lines: [{ id, arcadeId: id, label: null, cabs, keywords: [] }],
+    ...arcade,
+    unofficial,
+    lines: [{ id: arcade.id, arcadeId: arcade.id, label: null, cabs, keywords: [] }],
   }
 }
 
 export const ARCADES: readonly Arcade[] = [
-  singleLine('burbank', 'Round1 Burbank', 'Burbank', { lat: 34.18401, lng: -118.311656 }, 3),
+  singleLine({
+    id: 'burbank',
+    name: 'Round1 Burbank',
+    city: 'Burbank',
+    region: 'socal',
+    location: { lat: 34.18401, lng: -118.311656 },
+    cabs: 3,
+  }),
   {
     id: 'lakewood',
     name: 'Round1 Lakewood',
     city: 'Lakewood',
+    region: 'socal',
+    unofficial: false,
     location: { lat: 33.850428, lng: -118.138589 },
     lines: [
       {
@@ -44,85 +71,208 @@ export const ARCADES: readonly Arcade[] = [
       { id: 'lakewood:cuck', arcadeId: 'lakewood', label: 'Cuck cab', cabs: 1, keywords: ['cuck'] },
     ],
   },
-  singleLine(
-    'main-place',
-    'Round1 Main Place',
-    'Santa Ana',
-    { lat: 33.774196, lng: -117.869038 },
-    2
-  ),
-  singleLine('temecula', 'Round1 Temecula', 'Temecula', { lat: 33.526131, lng: -117.153183 }, 2),
-  singleLine(
-    'puente-hills',
-    'Round1 Puente Hills',
-    'City of Industry',
-    { lat: 33.993422, lng: -117.926751 },
-    4
-  ),
-  singleLine(
-    'mission-viejo',
-    'Round1 Mission Viejo',
-    'Mission Viejo',
-    { lat: 33.558026, lng: -117.668901 },
-    2
-  ),
-  singleLine(
-    'moreno-valley',
-    'Round1 Moreno Valley',
-    'Moreno Valley',
-    { lat: 33.93932, lng: -117.271209 },
-    2
-  ),
-  singleLine(
-    'plaza-bonita',
-    'Round1 Plaza Bonita',
-    'National City',
-    { lat: 32.656907, lng: -117.065308 },
-    4
-  ),
-  singleLine('2nd-loop', '2nd Loop', 'Gardena', { lat: 33.86268, lng: -118.309819 }, 1),
-  singleLine(
-    'kiddleton-sherman-oaks',
-    'Kiddleton Sherman Oaks',
-    'Sherman Oaks',
-    { lat: 34.156973, lng: -118.437405 },
-    1
-  ),
-  singleLine(
-    'kiddleton-little-tokyo',
-    'Kiddleton Little Tokyo',
-    'Los Angeles',
-    { lat: 34.049387, lng: -118.240725 },
-    1
-  ),
-  singleLine(
-    'camelot-golfland',
-    'Camelot Golfland',
-    'Anaheim',
-    { lat: 33.850473, lng: -117.851619 },
-    1
-  ),
-  singleLine(
-    'lucky-strike-aliso-viejo',
-    'Lucky Strike Aliso Viejo',
-    'Aliso Viejo',
-    { lat: 33.579378, lng: -117.723719 },
-    1
-  ),
-  singleLine(
-    'factory-tea-bar',
-    'Factory Tea Bar',
-    'San Gabriel',
-    { lat: 34.097678, lng: -118.108958 },
-    2
-  ),
-  singleLine(
-    'pacific-view',
-    'Round1 Pacific View',
-    'Ventura',
-    { lat: 34.268487, lng: -119.249725 },
-    2
-  ),
+  singleLine({
+    id: 'main-place',
+    name: 'Round1 Main Place',
+    city: 'Santa Ana',
+    region: 'socal',
+    location: { lat: 33.774196, lng: -117.869038 },
+    cabs: 2,
+  }),
+  singleLine({
+    id: 'temecula',
+    name: 'Round1 Temecula',
+    city: 'Temecula',
+    region: 'socal',
+    location: { lat: 33.526131, lng: -117.153183 },
+    cabs: 2,
+  }),
+  singleLine({
+    id: 'puente-hills',
+    name: 'Round1 Puente Hills',
+    city: 'City of Industry',
+    region: 'socal',
+    location: { lat: 33.993422, lng: -117.926751 },
+    cabs: 4,
+  }),
+  singleLine({
+    id: 'mission-viejo',
+    name: 'Round1 Mission Viejo',
+    city: 'Mission Viejo',
+    region: 'socal',
+    location: { lat: 33.558026, lng: -117.668901 },
+    cabs: 2,
+  }),
+  singleLine({
+    id: 'moreno-valley',
+    name: 'Round1 Moreno Valley',
+    city: 'Moreno Valley',
+    region: 'socal',
+    location: { lat: 33.93932, lng: -117.271209 },
+    cabs: 2,
+  }),
+  singleLine({
+    id: 'plaza-bonita',
+    name: 'Round1 Plaza Bonita',
+    city: 'National City',
+    region: 'socal',
+    location: { lat: 32.656907, lng: -117.065308 },
+    cabs: 4,
+  }),
+  singleLine({
+    id: '2nd-loop',
+    name: '2nd Loop',
+    city: 'Gardena',
+    region: 'socal',
+    location: { lat: 33.86268, lng: -118.309819 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'kiddleton-sherman-oaks',
+    name: 'Kiddleton Sherman Oaks',
+    city: 'Sherman Oaks',
+    region: 'socal',
+    location: { lat: 34.156973, lng: -118.437405 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'kiddleton-little-tokyo',
+    name: 'Kiddleton Little Tokyo',
+    city: 'Los Angeles',
+    region: 'socal',
+    location: { lat: 34.049387, lng: -118.240725 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'camelot-golfland',
+    name: 'Camelot Golfland',
+    city: 'Anaheim',
+    region: 'socal',
+    location: { lat: 33.850473, lng: -117.851619 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'lucky-strike-aliso-viejo',
+    name: 'Lucky Strike Aliso Viejo',
+    city: 'Aliso Viejo',
+    region: 'socal',
+    location: { lat: 33.579378, lng: -117.723719 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'factory-tea-bar',
+    name: 'Factory Tea Bar',
+    city: 'San Gabriel',
+    region: 'socal',
+    location: { lat: 34.097678, lng: -118.108958 },
+    cabs: 2,
+    unofficial: true,
+  }),
+  singleLine({
+    id: 'pacific-view',
+    name: 'Round1 Pacific View',
+    city: 'Ventura',
+    region: 'socal',
+    location: { lat: 34.268487, lng: -119.249725 },
+    cabs: 2,
+  }),
+  singleLine({
+    id: 'stonestown',
+    name: 'Round1 Stonestown',
+    city: 'San Francisco',
+    region: 'norcal',
+    location: { lat: 37.7266, lng: -122.477632 },
+    cabs: 4,
+  }),
+  singleLine({
+    id: 'eastridge',
+    name: 'Round1 Eastridge',
+    city: 'San Jose',
+    region: 'norcal',
+    location: { lat: 37.324669, lng: -121.813599 },
+    cabs: 3,
+  }),
+  singleLine({
+    id: 'southland',
+    name: 'Round1 Southland',
+    city: 'Hayward',
+    region: 'norcal',
+    location: { lat: 37.651515, lng: -122.104066 },
+    cabs: 3,
+  }),
+  singleLine({
+    id: 'roseville',
+    name: 'Round1 Roseville',
+    city: 'Roseville',
+    region: 'norcal',
+    location: { lat: 38.774709, lng: -121.269611 },
+    cabs: 3,
+  }),
+  singleLine({
+    id: 'sunvalley',
+    name: 'Round1 Sunvalley',
+    city: 'Concord',
+    region: 'norcal',
+    location: { lat: 37.968816, lng: -122.061916 },
+    cabs: 2,
+  }),
+  singleLine({
+    id: 'northridge',
+    name: 'Round1 Northridge',
+    city: 'Salinas',
+    region: 'norcal',
+    location: { lat: 36.716658, lng: -121.657593 },
+    cabs: 2,
+  }),
+  singleLine({
+    id: 'kiddleton-japan-center',
+    name: 'Kiddleton Japan Center',
+    city: 'San Francisco',
+    region: 'norcal',
+    location: { lat: 37.785164, lng: -122.431848 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'roseville-golfland',
+    name: 'Roseville Golfland',
+    city: 'Roseville',
+    region: 'norcal',
+    location: { lat: 38.7615, lng: -121.257984 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'fairfield-golfland',
+    name: 'Fairfield Golfland',
+    city: 'Fairfield',
+    region: 'norcal',
+    location: { lat: 38.224922, lng: -122.123905 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'dave-and-busters-santa-rosa',
+    name: "Dave & Buster's Santa Rosa",
+    city: 'Santa Rosa',
+    region: 'norcal',
+    location: { lat: 38.439325, lng: -122.717167 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'ten-pin-turlock',
+    name: 'Ten Pin Fun Center',
+    city: 'Turlock',
+    region: 'norcal',
+    location: { lat: 37.526584, lng: -120.88446 },
+    cabs: 1,
+  }),
+  singleLine({
+    id: 'hazes-toys',
+    name: "Haze's Toys & Arcade",
+    city: 'San Rafael',
+    region: 'norcal',
+    location: { lat: 38.004564, lng: -122.544422 },
+    cabs: 2,
+    unofficial: true,
+  }),
 ]
 
 export const LINES: readonly Line[] = ARCADES.flatMap(arcade => arcade.lines)
@@ -156,8 +306,14 @@ export const lineName = (line: Line): string => {
   return line.label ? `${arcade.name} (${line.label})` : arcade.name
 }
 
-export function sortByDistance(origin: Point): Arcade[] {
-  return ARCADES.toSorted(
+export const findRegion = (id: string): Region | undefined =>
+  REGIONS.find(region => region.id === id)
+
+export const arcadesIn = (region: RegionId): Arcade[] =>
+  ARCADES.filter(arcade => arcade.region === region)
+
+export function sortByDistance(origin: Point, arcades: readonly Arcade[] = ARCADES): Arcade[] {
+  return arcades.toSorted(
     (a, b) => distanceMeters(origin, a.location) - distanceMeters(origin, b.location)
   )
 }
@@ -168,9 +324,34 @@ export function nearestArcade(point: Point): Arcade {
   return nearest
 }
 
-export function sortByRecent(lastReportedAt: ReadonlyMap<string, number>): Arcade[] {
-  return ARCADES.toSorted((a, b) => {
+export function sortByRecent(
+  lastReportedAt: ReadonlyMap<string, number>,
+  arcades: readonly Arcade[] = ARCADES
+): Arcade[] {
+  return arcades.toSorted((a, b) => {
     const byRecency = (lastReportedAt.get(b.id) ?? -1) - (lastReportedAt.get(a.id) ?? -1)
     return byRecency === 0 ? a.name.localeCompare(b.name) : byRecency
   })
+}
+
+const normalize = (text: string): string =>
+  text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()
+
+export function searchArcades(query: string): Arcade[] {
+  const words = normalize(query).split(' ').filter(Boolean)
+  return ARCADES.filter(arcade => {
+    const haystack = normalize(`${arcade.name} ${arcade.city} ${arcade.id}`)
+    return words.every(word => haystack.includes(word))
+  })
+}
+
+export function resolveArcade(text: string): Arcade | undefined {
+  const exact =
+    findArcade(text) ?? ARCADES.find(arcade => normalize(arcade.name) === normalize(text))
+  if (exact) return exact
+  const [only, ...others] = searchArcades(text)
+  return others.length === 0 ? only : undefined
 }

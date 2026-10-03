@@ -1,5 +1,4 @@
 import {
-  ApplicationCommandOptionType,
   Command,
   Permission,
   type APIInteractionGuildMember,
@@ -7,9 +6,9 @@ import {
   type CommandOptions,
   type MessagePayload,
 } from '@buape/carbon'
-import { findArcade } from '@maiq/core/arcades'
+import { resolveArcade } from '@maiq/core/arcades'
 import type { BotDeps } from '@maiq/bot/deps'
-import { ARCADE_CHOICES, replySafely } from '@maiq/bot/replies'
+import { arcadeOption, replySafely } from '@maiq/bot/replies'
 import { deleteMessageIfPresent, postPinnedStatus } from '@maiq/bot/status/rest'
 import { discordStatus } from '@maiq/bot/discord-status'
 
@@ -25,18 +24,16 @@ const canManageChannels = (member: APIInteractionGuildMember | undefined): boole
 export class SetupCommand extends Command {
   name = 'setup'
   override description = 'Post and pin the live queue status for an arcade in this channel'
-  override options: CommandOptions = [
-    {
-      name: 'arcade',
-      description: 'The arcade this channel is for',
-      type: ApplicationCommandOptionType.String,
-      required: true,
-      choices: ARCADE_CHOICES,
-    },
-  ]
+  override options: CommandOptions
 
   constructor(private readonly deps: BotDeps) {
     super()
+    this.options = [
+      arcadeOption(deps.statusMessages, {
+        description: 'The arcade this channel is for',
+        required: true,
+      }),
+    ]
   }
 
   async run(interaction: CommandInteraction): Promise<void> {
@@ -45,7 +42,7 @@ export class SetupCommand extends Command {
   }
 
   private async setUp(interaction: CommandInteraction): Promise<MessagePayload> {
-    const arcade = findArcade(interaction.options.getString('arcade', true))
+    const arcade = resolveArcade(interaction.options.getString('arcade', true))
     if (!arcade) return { content: 'Unknown arcade.' }
     const channelId = interaction.rawData.channel?.id
     const guildId = interaction.rawData.guild_id

@@ -78,6 +78,17 @@ export const commandInteraction = (
   },
 })
 
+export const autocompleteInteraction = (name: string, focused: string, value: string) => ({
+  ...base,
+  type: 4,
+  data: {
+    id: '1',
+    name,
+    type: 1,
+    options: [{ name: focused, type: 3, value, focused: true }],
+  },
+})
+
 export const PICKER_MESSAGE_ID = '901'
 
 export function buttonInteraction(

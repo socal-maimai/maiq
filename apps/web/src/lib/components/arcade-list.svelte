@@ -1,19 +1,27 @@
 <script lang="ts">
-  import { findLine, sortByDistance, sortByRecent } from '@maiq/core/arcades'
+  import {
+    arcadesIn,
+    findLine,
+    sortByDistance,
+    sortByRecent,
+    type RegionId,
+  } from '@maiq/core/arcades'
   import { downSides, isStation, summarizeIssues } from '@maiq/core/buttons'
   import { ageState } from '@maiq/core/state'
   import { fromLineStateJson, type ButtonStateJson, type LineStateJson } from '@maiq/types'
   import { clock } from '$lib/clock.svelte'
   import ArcadeCard from '$lib/components/arcade-card.svelte'
+  import { highlight } from '$lib/map/highlight.svelte'
   import { viewer } from '$lib/viewer.svelte'
 
   type Props = {
+    region: RegionId
     lines: readonly LineStateJson[]
     buttons: readonly ButtonStateJson[]
     onOpenButtons: (arcadeId: string) => void
   }
 
-  let { lines, buttons, onOpenButtons }: Props = $props()
+  let { region, lines, buttons, onOpenButtons }: Props = $props()
 
   const states = $derived(
     new Map(lines.map(json => [json.lineId, ageState(fromLineStateJson(json), clock.now)]))
@@ -45,14 +53,22 @@
   })
 
   const origin = $derived(viewer.origin)
+  const regionArcades = $derived(arcadesIn(region))
   const arcades = $derived(
-    origin.kind === 'none' ? sortByRecent(lastReported) : sortByDistance(origin.point)
+    origin.kind === 'none'
+      ? sortByRecent(lastReported, regionArcades)
+      : sortByDistance(origin.point, regionArcades)
   )
 </script>
 
 <ol>
   {#each arcades as arcade (arcade.id)}
-    <li>
+    <li
+      id="arcade-{arcade.id}"
+      data-active={highlight.isActive(arcade.id) ? '' : undefined}
+      onpointerenter={() => highlight.enter(arcade.id)}
+      onpointerleave={() => highlight.leave(arcade.id)}
+    >
       <ArcadeCard
         {arcade}
         {states}
@@ -70,6 +86,14 @@
   ol {
     display: grid;
     gap: 0.75rem;
+  }
+
+  li {
+    scroll-margin-block-start: calc(env(safe-area-inset-top, 0px) + 1rem);
+  }
+
+  li[data-active] > :global(article) {
+    box-shadow: 0 0 0 2px var(--pink);
   }
 
   @media (prefers-reduced-motion: no-preference) {

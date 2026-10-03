@@ -1,5 +1,4 @@
 import {
-  ApplicationCommandOptionType,
   Command,
   type CommandInteraction,
   type CommandOptions,
@@ -13,7 +12,7 @@ import { renderButtonsPng } from '@maiq/bot/buttons/image'
 import { buttonsMessage } from '@maiq/bot/buttons/render'
 import type { BotDeps, BotLogger } from '@maiq/bot/deps'
 import {
-  ARCADE_CHOICES,
+  arcadeOption,
   logInteractionFailure,
   replySafely,
   SOMETHING_WENT_WRONG,
@@ -59,18 +58,16 @@ export async function buttonsReply(
 export class ButtonsCommand extends Command {
   name = 'buttons'
   override description = 'Show which cabinet buttons are unreliable or broken at an arcade'
-  override options: CommandOptions = [
-    {
-      name: 'arcade',
-      description: "Which arcade. Defaults to this channel's arcade.",
-      type: ApplicationCommandOptionType.String,
-      required: false,
-      choices: ARCADE_CHOICES,
-    },
-  ]
+  override options: CommandOptions
 
   constructor(private readonly deps: BotDeps) {
     super()
+    this.options = [
+      arcadeOption(deps.statusMessages, {
+        description: "Which arcade. Defaults to this channel's arcade.",
+        required: false,
+      }),
+    ]
   }
 
   async run(interaction: CommandInteraction): Promise<void> {

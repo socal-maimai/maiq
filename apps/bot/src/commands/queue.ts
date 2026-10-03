@@ -11,7 +11,7 @@ import { parseCount } from '@maiq/core/count'
 import { PickLineButton } from '@maiq/bot/components/pick-line-button'
 import type { BotDeps } from '@maiq/bot/deps'
 import {
-  ARCADE_CHOICES,
+  arcadeOption,
   describeWrite,
   discordReport,
   replySafely,
@@ -26,25 +26,23 @@ const NO_ARCADE =
 export class QueueCommand extends Command {
   name = 'q'
   override description = 'Report the queue at an arcade, like 4p2q'
-  override options: CommandOptions = [
-    {
-      name: 'count',
-      description: 'Playing and queueing, like 4p2q',
-      type: ApplicationCommandOptionType.String,
-      required: true,
-      max_length: 12,
-    },
-    {
-      name: 'arcade',
-      description: "Which arcade. Defaults to this channel's arcade.",
-      type: ApplicationCommandOptionType.String,
-      required: false,
-      choices: ARCADE_CHOICES,
-    },
-  ]
+  override options: CommandOptions
 
   constructor(private readonly deps: BotDeps) {
     super()
+    this.options = [
+      {
+        name: 'count',
+        description: 'Playing and queueing, like 4p2q',
+        type: ApplicationCommandOptionType.String,
+        required: true,
+        max_length: 12,
+      },
+      arcadeOption(deps.statusMessages, {
+        description: "Which arcade. Defaults to this channel's arcade.",
+        required: false,
+      }),
+    ]
   }
 
   async run(interaction: CommandInteraction): Promise<void> {
