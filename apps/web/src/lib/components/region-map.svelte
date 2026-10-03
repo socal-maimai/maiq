@@ -57,7 +57,7 @@
 
 <script lang="ts">
   import { clock } from '$lib/clock.svelte'
-  import HourglassIcon from '$lib/components/hourglass-icon.svelte'
+  import CrowdIcon from '$lib/components/crowd-icon.svelte'
   import { highlight } from '$lib/map/highlight.svelte'
 
   type Props = {
@@ -164,7 +164,7 @@
                   </span>
                   {#if summary.wait}
                     <span data-part="wait" data-tier={summary.wait.tier}>
-                      <HourglassIcon tier={summary.wait.tier} />
+                      <CrowdIcon tier={summary.wait.tier} />
                       {summary.wait.short}
                     </span>
                   {:else}
@@ -310,15 +310,9 @@
   [data-part='wait'] {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
     font-weight: var(--weight-heavy);
     color: var(--muted);
     white-space: nowrap;
-
-    & :global(svg) {
-      inline-size: 0.95rem;
-      block-size: 0.95rem;
-    }
 
     &[data-tier='go'] {
       color: var(--go);

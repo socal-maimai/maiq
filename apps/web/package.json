@@ -17,6 +17,7 @@
     "@zag-js/dialog": "1.44.0",
     "@zag-js/svelte": "1.44.0",
     "@zag-js/toast": "1.44.0",
+    "phosphor-svelte": "3.1.0",
     "zod": "4.6.5"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@
   import { untrack } from 'svelte'
   import { clock } from '$lib/clock.svelte'
   import CabPill from '$lib/components/cab-pill.svelte'
-  import HourglassIcon from '$lib/components/hourglass-icon.svelte'
+  import CrowdIcon from '$lib/components/crowd-icon.svelte'
   import VerifiedBadge from '$lib/components/verified-badge.svelte'
 
   type Props = {
@@ -58,7 +58,7 @@
   <line-footer>
     {#if wait}
       <wait-line data-tier={wait.tier} role="img" aria-label={wait.text} title={wait.text}>
-        <HourglassIcon tier={wait.tier} />
+        <CrowdIcon tier={wait.tier} />
         <span>{waitShort}</span>
       </wait-line>
     {:else}
@@ -125,7 +125,14 @@
     & line-footer {
       grid-column: 1;
       grid-row: 2;
+      flex-wrap: wrap;
+      row-gap: 0.2rem;
       justify-content: flex-start;
+    }
+
+    & wait-line {
+      flex-shrink: 0;
+      max-inline-size: 100%;
     }
 
   }
