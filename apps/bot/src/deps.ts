@@ -10,6 +10,7 @@ export type StatusMessage = {
 
 export type StatusMessageStore = {
   forChannel(channelId: string): Promise<StatusMessage[]>
+  forGuild(guildId: string): Promise<StatusMessage[]>
   forLine(lineId: string): Promise<StatusMessage[]>
   replaceForChannel(input: {
     guildId: string

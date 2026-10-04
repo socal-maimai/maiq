@@ -7,6 +7,7 @@ const table = discordStatusMessages
 export function createStatusMessageStore(db: Database): StatusMessageStore {
   return {
     forChannel: channelId => db.select().from(table).where(eq(table.channelId, channelId)),
+    forGuild: guildId => db.select().from(table).where(eq(table.guildId, guildId)),
     forLine: lineId => db.select().from(table).where(eq(table.lineId, lineId)),
     replaceForChannel: ({ guildId, channelId, messageId, lineIds }) =>
       db.transaction(async tx => {

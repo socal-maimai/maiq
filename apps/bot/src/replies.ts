@@ -14,6 +14,7 @@ import {
   searchArcades,
   type Arcade,
   type Line,
+  type RegionId,
 } from '@maiq/core/arcades'
 import { cabsText } from '@maiq/core/caps'
 import { formatCount, type Count } from '@maiq/core/count'
@@ -26,18 +27,29 @@ export const OUT_OF_DATE = 'That button is out of date. Post the count in chat o
 
 const MAX_CHOICES = 25
 
+export async function guildRegions(
+  statusMessages: StatusMessageStore,
+  guildId: string | undefined
+): Promise<Set<RegionId>> {
+  if (!guildId) return new Set()
+  const rows = await statusMessages.forGuild(guildId)
+  return new Set(
+    rows.flatMap(row => {
+      const line = findLine(row.lineId)
+      return line ? [arcadeOfLine(line).region] : []
+    })
+  )
+}
+
 async function suggestArcades(
   interaction: AutocompleteInteraction,
   statusMessages: StatusMessageStore
 ): Promise<void> {
   const focused = interaction.options.getFocused()
   const query = typeof focused?.value === 'string' ? focused.value.trim() : ''
-  let arcades: Arcade[] = query ? searchArcades(query) : [...ARCADES]
-  const channelId = interaction.rawData.channel?.id
-  if (!query && channelId) {
-    const region = (await channelArcade(statusMessages, channelId))?.region
-    arcades = arcades.toSorted((a, b) => Number(b.region === region) - Number(a.region === region))
-  }
+  const regions = await guildRegions(statusMessages, interaction.rawData.guild_id)
+  const matches = query ? searchArcades(query) : ARCADES
+  const arcades = regions.size ? matches.filter(arcade => regions.has(arcade.region)) : matches
   await interaction.respond(
     arcades.slice(0, MAX_CHOICES).map(arcade => ({ name: arcade.name, value: arcade.id }))
   )

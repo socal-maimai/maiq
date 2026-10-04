@@ -13,6 +13,25 @@ import {
   waitFor,
 } from 'maiq-tests-api/support/discord'
 
+type Choices = { data: { choices: { value: string }[] } }
+
+async function suggest(t: Awaited<ReturnType<typeof createTestBotApp>>, typed: string) {
+  const before = callbacks(t.discord.calls).length
+  await t.send(autocompleteInteraction('q', 'arcade', typed))
+  await waitFor(() => callbacks(t.discord.calls).length > before, 'the autocomplete answer')
+  const answer = (callbacks(t.discord.calls) as Choices[]).at(-1)
+  return answer?.data.choices.map(choice => choice.value) ?? []
+}
+
+async function setUpElsewhere(t: Awaited<ReturnType<typeof createTestBotApp>>, lineIds: string[]) {
+  await t.statusMessages.replaceForChannel({
+    guildId: GUILD_ID,
+    channelId: `other-${lineIds[0]}`,
+    messageId: `msg-${lineIds[0]}`,
+    lineIds,
+  })
+}
+
 describe('interactions endpoint', () => {
   test('answers PING', async () => {
     const t = await createTestBotApp()
@@ -135,19 +154,38 @@ describe('/q', () => {
     })
   })
 
-  test('caps empty-query suggestions at 25 and lists the channel region first', async () => {
+  test('offers every arcade, capped at 25, in a server with no setup yet', async () => {
     const t = await createTestBotApp()
-    await t.statusMessages.replaceForChannel({
-      guildId: GUILD_ID,
-      channelId: CHANNEL_ID,
-      messageId: '700',
-      lineIds: ['stonestown'],
-    })
-    await t.send(autocompleteInteraction('q', 'arcade', ''))
-    await waitFor(() => callbacks(t.discord.calls).length > 0, 'the autocomplete answer')
-    const [answer] = callbacks(t.discord.calls) as { data: { choices: { value: string }[] } }[]
-    expect(answer?.data.choices).toHaveLength(25)
-    expect(answer?.data.choices[0]?.value).toBe('stonestown')
+    expect(await suggest(t, '')).toHaveLength(25)
+  })
+
+  test('offers only NorCal arcades in a server set up for NorCal', async () => {
+    const t = await createTestBotApp()
+    await setUpElsewhere(t, ['stonestown'])
+    const offered = await suggest(t, '')
+    expect(offered).toHaveLength(12)
+    expect(offered).not.toContain('burbank')
+    expect(await suggest(t, 'kiddleton')).toEqual(['kiddleton-japan-center'])
+  })
+
+  test('offers only SoCal arcades in a server set up for SoCal', async () => {
+    const t = await createTestBotApp()
+    await setUpElsewhere(t, ['lakewood:main', 'lakewood:cuck'])
+    const offered = await suggest(t, 'round1')
+    expect(offered).toContain('burbank')
+    expect(offered).not.toContain('stonestown')
+  })
+
+  test('offers both regions in a server set up in both', async () => {
+    const t = await createTestBotApp()
+    await setUpElsewhere(t, ['stonestown'])
+    await setUpElsewhere(t, ['burbank'])
+    const offered = await suggest(t, 'kiddleton')
+    expect(offered).toEqual([
+      'kiddleton-sherman-oaks',
+      'kiddleton-little-tokyo',
+      'kiddleton-japan-center',
+    ])
   })
 
   test('accepts an arcade name typed without picking a suggestion', async () => {

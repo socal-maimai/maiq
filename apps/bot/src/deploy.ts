@@ -11,6 +11,7 @@ const deployOnlyDeps: BotDeps = {
   buttons: { buttonStates: unavailable, submit: unavailable },
   statusMessages: {
     forChannel: unavailable,
+    forGuild: unavailable,
     forLine: unavailable,
     replaceForChannel: unavailable,
     removeMessage: unavailable,
