@@ -17,8 +17,8 @@
     "@maiq/core": "workspace:*",
     "@maiq/db": "workspace:*",
     "@maiq/types": "workspace:*",
-    "drizzle-orm": "0.45.2",
-    "hono": "4.13.8",
+    "drizzle-orm": "0.45.3",
+    "hono": "4.13.12",
     "pino": "10.3.1",
     "postgres": "3.4.9"
   }
