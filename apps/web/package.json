@@ -12,18 +12,18 @@
   "dependencies": {
     "@maiq/core": "workspace:*",
     "@maiq/types": "workspace:*",
-    "@tanstack/svelte-query": "6.2.1",
-    "@zag-js/combobox": "1.44.0",
-    "@zag-js/dialog": "1.44.0",
-    "@zag-js/svelte": "1.44.0",
-    "@zag-js/toast": "1.44.0",
-    "zod": "4.6.5"
+    "@tanstack/svelte-query": "6.3.3",
+    "@zag-js/combobox": "1.46.0",
+    "@zag-js/dialog": "1.46.0",
+    "@zag-js/svelte": "1.46.0",
+    "@zag-js/toast": "1.46.0",
+    "zod": "4.6.7"
   },
   "devDependencies": {
-    "@sveltejs/adapter-static": "3.0.10",
-    "@sveltejs/kit": "2.70.3",
-    "@sveltejs/vite-plugin-svelte": "7.3.0",
-    "svelte": "5.57.1",
+    "@sveltejs/adapter-static": "4.0.0",
+    "@sveltejs/kit": "3.1.0",
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "svelte": "5.57.2",
     "svelte-check": "4.7.6",
     "typescript": "6.0.3",
     "vite": "8.3.4"
