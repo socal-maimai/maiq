@@ -18,6 +18,7 @@ import {
 } from '@maiq/core/arcades'
 import { cabsText } from '@maiq/core/caps'
 import { formatCount, type Count } from '@maiq/core/count'
+import { openState } from '@maiq/core/hours'
 import type { ConfirmInput, ReportInput, WriteResult } from '@maiq/core/queue'
 import { retryText } from '@maiq/core/retry'
 import type { BotLogger, StatusMessageStore } from '@maiq/bot/deps'
@@ -26,6 +27,16 @@ export const SOMETHING_WENT_WRONG = 'Something went wrong on our side. Try again
 export const OUT_OF_DATE = 'That button is out of date. Post the count in chat or use /q.'
 
 const MAX_CHOICES = 25
+
+export const unix = (date: Date): number => Math.floor(date.getTime() / 1000)
+
+export function closedText(arcade: Arcade, now: Date): string | null {
+  const state = arcade.hours ? openState(arcade.hours, now) : null
+  if (!state || state.open) return null
+  if (!state.opensAt) return `${arcade.name} is closed.`
+  const opens = unix(state.opensAt)
+  return `${arcade.name} is closed. It opens <t:${opens}:R> (<t:${opens}:t>).`
+}
 
 export async function guildRegions(
   statusMessages: StatusMessageStore,

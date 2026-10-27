@@ -47,6 +47,7 @@ async function main(): Promise<void> {
           statusMessages: createStatusMessageStore(db),
           logger,
           adminIds: config.admin?.ids ?? [],
+          now: () => new Date(),
         },
         { gateway: true }
       )

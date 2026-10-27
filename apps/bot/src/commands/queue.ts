@@ -12,6 +12,7 @@ import { PickLineButton } from '@maiq/bot/components/pick-line-button'
 import type { BotDeps } from '@maiq/bot/deps'
 import {
   arcadeOption,
+  closedText,
   describeWrite,
   discordReport,
   replySafely,
@@ -55,6 +56,8 @@ export class QueueCommand extends Command {
     if (!parsed.ok) return { content: parsed.reason }
     const arcade = await targetArcade(interaction, this.deps.statusMessages)
     if (!arcade) return { content: NO_ARCADE }
+    const closed = closedText(arcade, this.deps.now())
+    if (closed) return { content: closed }
     const user = requireUser(interaction)
     const only = soleLine(arcade)
     if (only) {

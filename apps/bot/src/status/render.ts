@@ -8,8 +8,7 @@ import type { LineState } from '@maiq/core/state'
 import { ConfirmButton } from '@maiq/bot/components/confirm-button'
 import { UpdateButton } from '@maiq/bot/components/update-button'
 import type { BotDeps } from '@maiq/bot/deps'
-
-const unix = (date: Date): number => Math.floor(date.getTime() / 1000)
+import { unix } from '@maiq/bot/replies'
 
 type LineSummary = { count: string; wait: string | null; age: string }
 

@@ -1,9 +1,10 @@
 import { Button, ButtonStyle, type ButtonInteraction, type ComponentData } from '@buape/carbon'
-import type { Line } from '@maiq/core/arcades'
+import { arcadeOfLine, type Line } from '@maiq/core/arcades'
 import { formatCount, type Count } from '@maiq/core/count'
 import { lineCustomId, lineFromData } from '@maiq/bot/custom-ids'
 import type { BotDeps } from '@maiq/bot/deps'
 import {
+  closedText,
   describeWrite,
   discordConfirm,
   OUT_OF_DATE,
@@ -33,6 +34,8 @@ export class ConfirmButton extends Button {
     await replySafely(interaction, this.deps.logger, 'confirm button', async () => {
       const line = lineFromData(data)
       if (!line) return { content: OUT_OF_DATE }
+      const closed = closedText(arcadeOfLine(line), this.deps.now())
+      if (closed) return { content: closed }
       const result = await this.deps.queue.confirm(discordConfirm(line, requireUser(interaction)))
       return { content: describeWrite(line, result, 'Confirmed') }
     })

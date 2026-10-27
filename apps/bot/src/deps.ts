@@ -33,4 +33,5 @@ export type BotDeps = {
   statusMessages: StatusMessageStore
   logger: BotLogger
   adminIds: readonly string[]
+  now: () => Date
 }

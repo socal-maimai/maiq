@@ -5,12 +5,13 @@ import {
   type ButtonInteraction,
   type ComponentData,
 } from '@buape/carbon'
-import type { Line } from '@maiq/core/arcades'
+import { arcadeOfLine, type Line } from '@maiq/core/arcades'
 import { formatCount, parseCount, type Count } from '@maiq/core/count'
 import { addCheckMark, logChatFailure } from '@maiq/bot/chat/rest'
 import { encodeLineId, lineFromData } from '@maiq/bot/custom-ids'
 import type { BotDeps } from '@maiq/bot/deps'
 import {
+  closedText,
   describeWrite,
   discordReport,
   logInteractionFailure,
@@ -77,6 +78,8 @@ export class PickLineButton extends Button {
     const line = lineFromData(data)
     const parsed = parseCount(String(data['count']))
     if (!line || !parsed.ok) return OUT_OF_DATE
+    const closed = closedText(arcadeOfLine(line), this.deps.now())
+    if (closed) return closed
     const result = await this.deps.queue.submitReport(
       discordReport(line, parsed.count, requireUser(interaction))
     )

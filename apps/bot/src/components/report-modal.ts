@@ -6,10 +6,11 @@ import {
   type ComponentData,
   type ModalInteraction,
 } from '@buape/carbon'
-import { lineName, type Line } from '@maiq/core/arcades'
+import { arcadeOfLine, lineName, type Line } from '@maiq/core/arcades'
 import { lineCustomId, lineFromData } from '@maiq/bot/custom-ids'
 import type { BotDeps } from '@maiq/bot/deps'
 import {
+  closedText,
   describeWrite,
   discordReport,
   OUT_OF_DATE,
@@ -62,6 +63,8 @@ export class ReportModal extends Modal {
     await replySafely(interaction, this.deps.logger, 'report modal', async () => {
       const line = lineFromData(data)
       if (!line) return { content: OUT_OF_DATE }
+      const closed = closedText(arcadeOfLine(line), this.deps.now())
+      if (closed) return { content: closed }
       const players = parseSmallInt(interaction.fields.getText('players', true))
       const queue = parseSmallInt(interaction.fields.getText('queue', true))
       if (players === null || queue === null) return { content: NOT_NUMBERS }

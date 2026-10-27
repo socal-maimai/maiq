@@ -42,6 +42,11 @@ describe('arcade data', () => {
     expect(nearestArcade(losAngeles).region).toBe('socal')
   })
 
+  test('lists hours for every SoCal arcade and none in NorCal yet', () => {
+    expect(arcadesIn('socal').filter(a => !a.hours)).toEqual([])
+    expect(arcadesIn('norcal').filter(a => a.hours)).toEqual([])
+  })
+
   test('marks only the off-network arcades as unofficial', () => {
     expect(ARCADES.filter(a => a.unofficial).map(a => a.id)).toEqual([
       'factory-tea-bar',

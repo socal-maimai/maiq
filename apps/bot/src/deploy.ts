@@ -22,6 +22,7 @@ const deployOnlyDeps: BotDeps = {
     info: (details, message) => console.info(message, details),
   },
   adminIds: [],
+  now: () => new Date(),
 }
 
 const config = loadConfig({

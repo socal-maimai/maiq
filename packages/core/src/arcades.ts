@@ -1,4 +1,5 @@
 import { distanceMeters, type Point } from '@maiq/core/geo'
+import { hours, type Hours } from '@maiq/core/hours'
 
 export type Line = {
   id: string
@@ -24,6 +25,7 @@ export type Arcade = {
   unofficial: boolean
   location: Point
   lines: readonly Line[]
+  hours?: Hours
 }
 
 type SingleLineArcade = {
@@ -34,6 +36,7 @@ type SingleLineArcade = {
   location: Point
   cabs: number
   unofficial?: boolean
+  hours?: Hours
 }
 
 function singleLine({ cabs, unofficial = false, ...arcade }: SingleLineArcade): Arcade {
@@ -51,6 +54,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Burbank',
     region: 'socal',
     location: { lat: 34.18401, lng: -118.311656 },
+    hours: hours({ 'mon-sun': '10:00-26:00' }),
     cabs: 3,
   }),
   {
@@ -60,6 +64,7 @@ export const ARCADES: readonly Arcade[] = [
     region: 'socal',
     unofficial: false,
     location: { lat: 33.850428, lng: -118.138589 },
+    hours: hours({ 'sun-thu': '10:00-24:00', 'fri-sat': '10:00-25:00' }),
     lines: [
       {
         id: 'lakewood:main',
@@ -77,6 +82,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Santa Ana',
     region: 'socal',
     location: { lat: 33.774196, lng: -117.869038 },
+    hours: hours({ 'mon-sun': '10:00-26:00' }),
     cabs: 2,
   }),
   singleLine({
@@ -85,6 +91,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Temecula',
     region: 'socal',
     location: { lat: 33.526131, lng: -117.153183 },
+    hours: hours({ 'mon-sun': '10:00-26:00' }),
     cabs: 2,
   }),
   singleLine({
@@ -93,6 +100,10 @@ export const ARCADES: readonly Arcade[] = [
     city: 'City of Industry',
     region: 'socal',
     location: { lat: 33.993422, lng: -117.926751 },
+    hours: hours({ 'mon-sun': '10:00-26:00' }, [
+      { minAge: 18, from: 22 * 60 },
+      { minAge: 21, from: 24 * 60 },
+    ]),
     cabs: 4,
   }),
   singleLine({
@@ -101,6 +112,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Mission Viejo',
     region: 'socal',
     location: { lat: 33.558026, lng: -117.668901 },
+    hours: hours({ 'mon-sun': '10:00-23:00' }),
     cabs: 2,
   }),
   singleLine({
@@ -109,6 +121,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Moreno Valley',
     region: 'socal',
     location: { lat: 33.93932, lng: -117.271209 },
+    hours: hours({ 'mon-sun': '10:00-26:00' }),
     cabs: 2,
   }),
   singleLine({
@@ -117,6 +130,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'National City',
     region: 'socal',
     location: { lat: 32.656907, lng: -117.065308 },
+    hours: hours({ 'mon-sun': '10:00-26:00' }),
     cabs: 4,
   }),
   singleLine({
@@ -125,6 +139,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Gardena',
     region: 'socal',
     location: { lat: 33.86268, lng: -118.309819 },
+    hours: hours({ 'wed-thu': '17:00-24:00', 'fri-sat': '15:00-25:00', sun: '15:00-24:00' }),
     cabs: 1,
   }),
   singleLine({
@@ -133,6 +148,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Sherman Oaks',
     region: 'socal',
     location: { lat: 34.156973, lng: -118.437405 },
+    hours: hours({ 'mon-thu': '10:00-20:00', 'fri-sat': '10:00-21:00', sun: '11:00-19:00' }),
     cabs: 1,
   }),
   singleLine({
@@ -141,6 +157,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Los Angeles',
     region: 'socal',
     location: { lat: 34.049387, lng: -118.240725 },
+    hours: hours({ 'mon-sun': '12:00-19:00' }),
     cabs: 1,
   }),
   singleLine({
@@ -149,6 +166,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Anaheim',
     region: 'socal',
     location: { lat: 33.850473, lng: -117.851619 },
+    hours: hours({ 'mon-fri': '10:00-22:00', sat: '09:00-22:00', sun: '10:00-22:00' }),
     cabs: 1,
   }),
   singleLine({
@@ -157,6 +175,12 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Aliso Viejo',
     region: 'socal',
     location: { lat: 33.579378, lng: -117.723719 },
+    hours: hours({
+      'mon-thu': '16:00-22:00',
+      fri: '15:00-24:00',
+      sat: '11:00-24:00',
+      sun: '11:00-22:00',
+    }),
     cabs: 1,
   }),
   singleLine({
@@ -165,6 +189,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'San Gabriel',
     region: 'socal',
     location: { lat: 34.097678, lng: -118.108958 },
+    hours: hours({ 'sun-thu': '12:00-23:00', 'fri-sat': '12:00-26:00' }),
     cabs: 2,
     unofficial: true,
   }),
@@ -174,6 +199,7 @@ export const ARCADES: readonly Arcade[] = [
     city: 'Ventura',
     region: 'socal',
     location: { lat: 34.268487, lng: -119.249725 },
+    hours: hours({ 'mon-sun': '10:00-26:00' }),
     cabs: 2,
   }),
   singleLine({

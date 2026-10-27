@@ -1,6 +1,7 @@
 import { Client, type Plugin } from '@buape/carbon'
 import { ChatListener, GatewayReadyListener } from '@maiq/bot/chat/listener'
 import { ButtonsCommand } from '@maiq/bot/commands/buttons'
+import { HoursCommand } from '@maiq/bot/commands/hours'
 import { QueueCommand } from '@maiq/bot/commands/queue'
 import { SetupCommand } from '@maiq/bot/commands/setup'
 import { ConfirmButton } from '@maiq/bot/components/confirm-button'
@@ -48,7 +49,12 @@ export function createDiscordClient(
       },
     },
     {
-      commands: [new QueueCommand(deps), new SetupCommand(deps), new ButtonsCommand(deps)],
+      commands: [
+        new QueueCommand(deps),
+        new SetupCommand(deps),
+        new ButtonsCommand(deps),
+        new HoursCommand(deps),
+      ],
       components: [
         new PickLineButton(deps, null, null),
         new ConfirmButton(deps, null, null),
