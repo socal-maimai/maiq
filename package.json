@@ -20,9 +20,9 @@
     "bot:deploy": "bun run --filter '@maiq/bot' deploy"
   },
   "devDependencies": {
-    "@types/bun": "1.4.3",
-    "oxfmt": "0.68.0",
-    "oxlint": "1.83.0",
+    "@types/bun": "1.4.4",
+    "oxfmt": "0.76.0",
+    "oxlint": "1.91.0",
     "typescript": "7.0.2"
   }
 }
