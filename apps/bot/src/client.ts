@@ -52,7 +52,7 @@ export function createDiscordClient(
       commands: [
         new QueueCommand(deps),
         new SetupCommand(deps),
-        new ButtonsCommand(deps),
+        new ButtonsCommand(deps, config.publicUrl),
         new HoursCommand(deps),
       ],
       components: [

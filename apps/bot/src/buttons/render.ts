@@ -18,6 +18,14 @@ const ALL_WORKING = 'All buttons and sides working'
 
 export const MAX_TEXT_LENGTH = 3800
 
+export function reportUrl(publicUrl: string, arcade: Arcade): string {
+  const base = publicUrl.replace(/\/+$/, '')
+  return `${base}/${arcade.region}#arcade-${arcade.id}`
+}
+
+export const reportLine = (url: string): string =>
+  `-# Something wrong? [Report it yourself](${url})`
+
 export type ButtonsMessage = {
   heading: string
   summary: string

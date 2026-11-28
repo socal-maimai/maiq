@@ -9,7 +9,7 @@ import {
 import type { Arcade } from '@maiq/core/arcades'
 import type { ButtonState } from '@maiq/core/button-service'
 import { renderButtonsPng } from '@maiq/bot/buttons/image'
-import { buttonsMessage } from '@maiq/bot/buttons/render'
+import { buttonsMessage, reportLine, reportUrl } from '@maiq/bot/buttons/render'
 import type { BotDeps, BotLogger } from '@maiq/bot/deps'
 import {
   arcadeOption,
@@ -34,23 +34,25 @@ function altText(arcade: Arcade, summary: string): string {
 export async function buttonsReply(
   arcade: Arcade,
   states: readonly ButtonState[],
-  logger: BotLogger
+  logger: BotLogger,
+  publicUrl: string
 ): Promise<MessagePayload> {
   const message = buttonsMessage(arcade, states)
   const heading = new TextDisplay(message.heading)
   const cabinets = message.cabinets === null ? [] : [new TextDisplay(message.cabinets)]
+  const report = new TextDisplay(reportLine(reportUrl(publicUrl, arcade)))
   let png: Uint8Array
   try {
     png = await renderButtonsPng(arcade, states)
   } catch (error) {
     logger.error({ err: error, arcadeId: arcade.id }, '/buttons image render failed')
-    return { components: [heading, ...cabinets] }
+    return { components: [heading, ...cabinets, report] }
   }
   const gallery = new MediaGallery([
     { url: `attachment://${BUTTONS_IMAGE_NAME}`, description: altText(arcade, message.summary) },
   ])
   return {
-    components: [gallery, ...cabinets],
+    components: [gallery, ...cabinets, report],
     files: [{ name: BUTTONS_IMAGE_NAME, data: new Blob([png], { type: 'image/png' }) }],
   }
 }
@@ -60,7 +62,10 @@ export class ButtonsCommand extends Command {
   override description = 'Show which cabinet buttons are unreliable or broken at an arcade'
   override options: CommandOptions
 
-  constructor(private readonly deps: BotDeps) {
+  constructor(
+    private readonly deps: BotDeps,
+    private readonly publicUrl: string
+  ) {
     super()
     this.options = [
       arcadeOption(deps.statusMessages, {
@@ -76,7 +81,7 @@ export class ButtonsCommand extends Command {
     await interaction.defer({ ephemeral: false })
     await replySafely(interaction, this.deps.logger, '/buttons', async () => {
       const states = await this.deps.buttons.buttonStates(arcade.lines.map(line => line.id))
-      return buttonsReply(arcade, states, this.deps.logger)
+      return buttonsReply(arcade, states, this.deps.logger, this.publicUrl)
     })
   }
 

@@ -1,7 +1,7 @@
 import { describe, expect, spyOn, test } from 'bun:test'
 import type { ButtonReportInput, ButtonState } from '@maiq/core/button-service'
 import { SIDES, type ReportKind, type Side } from '@maiq/core/buttons'
-import { buttonsMessage, MAX_TEXT_LENGTH } from '@maiq/bot/buttons/render'
+import { buttonsMessage, MAX_TEXT_LENGTH, reportUrl } from '@maiq/bot/buttons/render'
 import { createTestBotApp, type TestBotApp } from 'maiq-tests-api/support/app'
 import {
   callbacks,
@@ -18,6 +18,9 @@ const COMPONENTS_V2 = 1 << 15
 const EPHEMERAL = 1 << 6
 const NO_ARCADE =
   'This channel has no arcade set up. Add the arcade option, like /buttons arcade:Round1 Lakewood.'
+
+const reportLine = (arcadeId: string): string =>
+  `-# Something wrong? [Report it yourself](https://maiq.test/socal#arcade-${arcadeId})`
 
 type V2Body = {
   flags?: number
@@ -51,19 +54,20 @@ describe('/buttons', () => {
     expect(callbacks(t.discord.calls)).toEqual([{ type: 5, data: {} }])
     expect((body.flags ?? 0) & COMPONENTS_V2).toBe(COMPONENTS_V2)
     expect((body.flags ?? 0) & EPHEMERAL).toBe(0)
-    expect(body.components?.map(c => c.type)).toEqual([MEDIA_GALLERY])
-    expect(textsOf(body)).toEqual([])
+    expect(body.components?.map(c => c.type)).toEqual([MEDIA_GALLERY, TEXT_DISPLAY])
+    expect(textsOf(body)).toEqual([reportLine('burbank')])
   })
 
-  test('lists reported problems per cabinet', async () => {
+  test('lists reported problems per cabinet, then the link to report one', async () => {
     const t = await createTestBotApp()
     await t.deps.buttons.submit(report({}))
     await t.deps.buttons.submit(report({ reporter: 'device:b' }))
     await t.deps.buttons.submit(report({ cab: 1, side: 2, button: 5 }))
     const body = await replyBody(t, commandInteraction('buttons', [['arcade', 'burbank']]))
-    expect(body.components?.map(c => c.type)).toEqual([MEDIA_GALLERY, TEXT_DISPLAY])
+    expect(body.components?.map(c => c.type)).toEqual([MEDIA_GALLERY, TEXT_DISPLAY, TEXT_DISPLAY])
     expect(textsOf(body)).toEqual([
       '**Cab 1**\n`2P` ⚪ **5** pending\n\n**Cab 2**\n`1P` 🔴 **3** broken',
+      reportLine('burbank'),
     ])
   })
 
@@ -76,7 +80,7 @@ describe('/buttons', () => {
       lineIds: ['temecula'],
     })
     const body = await replyBody(t, commandInteraction('buttons', []))
-    expect(textsOf(body)).toEqual([])
+    expect(textsOf(body)).toEqual([reportLine('temecula')])
   })
 
   test('asks for an arcade privately, without deferring, in an unmapped channel', async () => {
@@ -227,5 +231,22 @@ describe('buttonsMessage', () => {
     expect(trailer).not.toBeNull()
     const listed = cabinets.match(/🔴 \*\*\d+\*\* broken/g)?.length ?? 0
     expect(listed + Number(trailer?.[1])).toBe(states.length)
+  })
+})
+
+describe('reportUrl', () => {
+  test('points at the arcade on its region page', () => {
+    expect(reportUrl('https://maiq.test', arcade('burbank'))).toBe(
+      'https://maiq.test/socal#arcade-burbank'
+    )
+    expect(reportUrl('https://maiq.test', arcade('stonestown'))).toBe(
+      'https://maiq.test/norcal#arcade-stonestown'
+    )
+  })
+
+  test('does not double up a trailing slash', () => {
+    expect(reportUrl('https://maiq.test/', arcade('burbank'))).toBe(
+      'https://maiq.test/socal#arcade-burbank'
+    )
   })
 })
