@@ -59,6 +59,11 @@
       ? sortByRecent(lastReported, regionArcades)
       : sortByDistance(origin.point, regionArcades)
   )
+
+  $effect(() => {
+    const selected = highlight.selectedId
+    if (selected) document.getElementById(`arcade-${selected}`)?.scrollIntoView()
+  })
 </script>
 
 <ol>

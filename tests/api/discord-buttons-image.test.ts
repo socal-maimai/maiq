@@ -153,17 +153,21 @@ async function buttonsReplyCall(): Promise<DiscordCall & { logged: unknown[] }> 
 const COMPONENTS_V2 = 1 << 15
 const TEXT_DISPLAY = 10
 const MEDIA_GALLERY = 12
+const PUBLIC_URL = 'https://maiq.test'
+const REPORT_LINE =
+  '-# Something wrong? [Report it yourself](https://maiq.test/socal#arcade-burbank)'
 
 describe('/buttons image reply', () => {
   afterEach(() => {
     mock.restore()
   })
 
-  test('attaches the PNG and shows it as the only component when all is well', async () => {
+  test('attaches the PNG, then the link to report a button, when all is well', async () => {
     const call = await buttonsReplyCall()
     const body = call.body as ReplyBody
     expect((body.flags ?? 0) & COMPONENTS_V2).toBe(COMPONENTS_V2)
-    expect(body.components?.map(c => c.type)).toEqual([MEDIA_GALLERY])
+    expect(body.components?.map(c => c.type)).toEqual([MEDIA_GALLERY, TEXT_DISPLAY])
+    expect(body.components?.[1]?.content).toBe(REPORT_LINE)
     const gallery = body.components?.[0]
     expect(gallery?.items?.[0]?.media.url).toBe('attachment://buttons.png')
     expect(gallery?.items?.[0]?.description).toBe('Round1 Burbank: All buttons and sides working')
@@ -179,8 +183,9 @@ describe('/buttons image reply', () => {
     const body = call.body as ReplyBody
     expect(call.files).toEqual([])
     expect((body.flags ?? 0) & COMPONENTS_V2).toBe(COMPONENTS_V2)
-    expect(body.components?.map(c => c.type)).toEqual([TEXT_DISPLAY])
+    expect(body.components?.map(c => c.type)).toEqual([TEXT_DISPLAY, TEXT_DISPLAY])
     expect(body.components?.[0]?.content).toStartWith('## Round1 Burbank')
+    expect(body.components?.[1]?.content).toBe(REPORT_LINE)
     expect(call.logged).toEqual([expect.objectContaining({ arcadeId: 'burbank' })])
   })
 })
@@ -188,23 +193,23 @@ describe('/buttons image reply', () => {
 const silent = { error: () => undefined, warn: () => undefined, info: () => undefined }
 
 async function serializedReply(target: Arcade, states: ButtonState[]): Promise<Child[]> {
-  const reply = await buttonsReply(target, states, silent)
+  const reply = await buttonsReply(target, states, silent, PUBLIC_URL)
   if (typeof reply === 'string') throw new Error('expected an object reply')
   return (reply.components ?? []).map(component => component.serialize() as Child)
 }
 
 describe('buttonsReply', () => {
-  test('is just the gallery when every button works', async () => {
+  test('is the gallery and the report link when every button works', async () => {
     const components = await serializedReply(arcade('2nd-loop'), [])
-    expect(components.map(c => c.type)).toEqual([MEDIA_GALLERY])
+    expect(components.map(c => c.type)).toEqual([MEDIA_GALLERY, TEXT_DISPLAY])
   })
 
-  test('is the gallery then one text with the cabinets joined by a blank line', async () => {
+  test('is the gallery, the cabinets joined by a blank line, then the report link', async () => {
     const components = await serializedReply(arcade('lakewood'), [
       state({ lineId: 'lakewood:main', cab: 2, side: 1, button: 1 }, 'broken'),
       state({ lineId: 'lakewood:cuck', cab: 1, side: 2, button: 4 }, 'unreliable'),
     ])
-    expect(components.map(c => c.type)).toEqual([MEDIA_GALLERY, TEXT_DISPLAY])
+    expect(components.map(c => c.type)).toEqual([MEDIA_GALLERY, TEXT_DISPLAY, TEXT_DISPLAY])
     const content = components[1]?.content ?? ''
     expect(content.split('\n\n')).toHaveLength(2)
     expect(content).toStartWith('**Main cab 2**')
